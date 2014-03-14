@@ -1,0 +1,34 @@
+{% extends "TermListBase.html" %}
+{% block title %}Down-to-Earth Terminology{% endblock %}
+{% block loginDetails %}{% if userID %}{{ super() }}{% endif %}{% endblock loginDetails %}
+{% block sidebarLanguages %}{{ super() }}{% endblock sidebarLanguages %}
+{% block sidebarProducts %}{{ super() }}{% endblock sidebarProducts %}
+{% block sidebarJobs %}{{ super() }}{% endblock sidebarJobs %}
+{% block contentTypeList %}{{ super() }}{% endblock contentTypeList %}
+{% block content %}
+	<form action="index.html" method="post" name="login">
+		<div class="loginForm">
+			{{form.hidden_tag()}}
+			{% if loginOK != none and loginOK %}
+			<h2>Welcome!</h2>
+			<p style="color: #005e30">You are logged in to the Term Translation Central.</p>
+			{% else %}
+			<h2>Please, login to the Term Translation Central</h2>
+			{% for error in form.errors.username %}
+			<span></span><p style="color: #ff3300; margin: 0">{{error}}</p>
+			{% endfor %}
+			<p><span>Login name:</span>{{form.username}}</p>
+			{% for error in form.errors.password %}
+			<span></span><p style="color: red; margin: 0">{{error}}</p>
+			{% endfor %}
+			<p><span>Password:</span>{{form.password}}</p>
+			{% if loginOK != None and not loginOK %}
+			<span></span><p style="color: red">Wrong username or password. Please try again.</p>
+			{% endif %}
+			<p><span style="width: 150px">{{form.remember_me(class="checkbox")}} Remember me</span>{{form.submit(value="Login", class="submit")}}</p>
+			{% endif %}
+		</div>
+	</form>
+	<!--script src="static/DEScrypt.js"></script>
+	<script src="static/login.js"></script-->
+{% endblock content %}

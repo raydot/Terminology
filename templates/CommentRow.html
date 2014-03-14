@@ -1,0 +1,11 @@
+								<tr class="oddRow commentRow">
+									<td scope="row" nowrap width="500px">
+										<div style="float: left; margin-right: 5px;">
+											<img src="static/images/cross-icon.png" alt="Delete Comment" title="Delete Comment" class="deleteComment" border="0" width="16" height="16" />
+											<input type="hidden" name="ID" value="{{ comment['ID'] }}" form="commentRowForm-{{ comment['ID'] }}" />
+										</div>
+										{% autoescape false %}{{ comment['Comment']|e|replace("\r\n", "<br/>") }}{% endautoescape %}
+									</td>
+									<td scope="row" align="center">{{ comment['UserID'] }}</td>
+									<td scope="row" align="center">{{ comment['CommentDate'] }}</td>
+								</tr>

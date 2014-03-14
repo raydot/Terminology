@@ -1,0 +1,42 @@
+<?xml version='1.0' encoding='UTF-8'?> 
+<!DOCTYPE martif PUBLIC 'ISO 12200:1999A//DTD MARTIF core (DXFcdV04)//EN' 'TBXcdv04.dtd'>
+
+<martif type='TBX' xml:lang='en'>
+  <martifHeader>
+    <fileDesc>
+      <titleStmt>
+        <title>{{ termBaseTitle }}</title>
+      </titleStmt>
+      <sourceDesc>
+        <p>A Term Database exported from Term Translation Central</p>
+      </sourceDesc>
+    </fileDesc>
+    <!--encodingDesc>
+      <p type='DCSName'>SYSTEM 'xcs.xml'</p>
+    </encodingDesc-->
+  </martifHeader>
+  <text><body>
+  {% for term in terms %}
+  	<termEntry>
+      <langSet xml:lang='en'>
+        <tig>
+          <term>{{ term }}</term>
+        </tig>
+      </langSet>
+      {% for target in terms[term] %}
+      <langSet xml:lang='{{ target['LangCode2Ltr'] }}'>
+      	<descrip type='Product'>{{ target['ProductName'] }}</descrip>
+        <tig>
+          <term>{{ target['TermTranslation'] }}</term>
+          <transacGrp>
+            <transac type='terminologyManagementTransactions'>origination</transac>
+            <transacNote type='responsibility'>{{ target['TranslateUserID'] }}</transacNote>
+            <date>{{ target['DateTranslated'] }}</date>
+          </transacGrp>
+        </tig>
+      </langSet>
+      {% endfor %}
+  	</termEntry>
+  {% endfor %}
+  </body></text>
+</martif>

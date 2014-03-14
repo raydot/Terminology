@@ -1,0 +1,162 @@
+{% extends "Base.html" %}
+{% block loginDetails %}{{ super() }}{% endblock loginDetails %}
+{% block currentJob %}{% if terms %}
+			<li><a href="#" class="sidebarTitle">Current Job</a>
+				<div class="sidebarContent" id="contentCurrent" style="display:none;">
+				<ul>
+					<li><a href="TermListLanguage.html?languageName={{language}}">{{language}}</a></li>
+					<li><a href="TermListProduct.html?productCode={{productCode}}">{{productCode}}</a></li>
+					<li><a href="TermListContent.html?contentType={{contentType}}">{{contentType}}</a></li>
+				</ul>
+				</div>
+			</li>
+{% endif %}{% endblock currentJob %}
+{% block sidebarLanguages %}{% if recentLanguages %}
+			<!--li><a href="#" class="sidebarTitle">Recent Languages</a>
+				<div class="sidebarContent" id="contentLanguage" style="display:none;">
+				<ul>
+					<li><a href="LanguageList.html"><em>All languages…</em></a></li>
+					{% for language in recentLanguages %}
+					<li><a href="TermListLanguage.html?languageID={{language['ID']}}">{{language['LangName']}}</a></li>
+					{% endfor %}
+				</ul>
+				</div>
+			</li-->
+{% endif %}{% endblock sidebarLanguages %}
+{% block sidebarProducts %}{% if recentProducts %}
+			<!--li><a href="#" class="sidebarTitle">Recent Products</a>
+				<div class="sidebarContent" id="contentProduct" style="display:none;">
+				<ul>
+					<li><a href="ProductList.html"><em>All products…</em></a></li>
+					{% for product in recentProducts %}
+					<li><a href="TermListProduct.html?productID={{product['ID']}}">{{product['ProductCode']}}</a></li>
+					{% endfor %}
+				</ul>
+				</div>
+			</li-->
+{% endif %}{% endblock sidebarProducts %}
+{% block sidebarJobs %}{% if latestJobs %}
+			<li><a href="#" class="sidebarTitle">Latest Jobs</a>
+				<div class="sidebarContent" id="contentJob" style="display:none;">
+				<ul>
+					<li><a href="JobList.html"><em>All jobs…</em></a></li>
+					{% for job in latestJobs %}
+					<li><a href="TermList.html?jobID={{ job['JobID'] }}">{{job['JobString']}}</a></li>
+					{% endfor %}
+				</ul>
+				</div>
+			</li>
+{% endif %}{% endblock sidebarJobs %}
+{% block content %}
+		<input type="hidden" name="UserID" value="{{ userID }}"/>
+		<h2>{% block contentTitle %}{% endblock contentTitle %}</h2>
+		{% if terms %}
+		<div style="margin-right: 200px">
+		<p><strong>Translation instructions</strong></p><p>Translate the full “term string” as it would need to be translated in at least one of the contexts on the right. Don’t skip words that don’t appear to be part of the term. French Example: “lists PObject items” ⇒ “liste les éléments PObject”<br/>The term strings are lowercased, as this is how they are used by the system. The proper case can be seen in the context examples. Skip terms that are obvious typos—we will not enforce translations for terms with typos.</p>
+		</div>
+		<div class="tabularContent"><table class="viewTable">
+				<!--col width="51px"/>
+				<col width="53px"/>
+				<col/>
+				<col/>
+				<col width="56px"/>
+				<col width="90px"/>
+				<col width="90px"/>
+				<col width="100px"/>
+				<col width="73px"/>
+				<col width="93px"/>
+				<col width="74px"/>
+				<col width="93px"/-->
+			<thead>
+				<tr>
+					<th scope="col" class="toggleImg-th"><span class="toggleImg-span"></span></th>
+						{% block contentProductColumnHeader %}<th nowrap scope="col">Product Code</th>{% endblock contentProductColumnHeader %}
+						{% block contentLanguageColumnHeader %}<th nowrap scope="col">Language</th>{% endblock contentLanguageColumnHeader %}
+						<th nowrap scope="col">Ignore</th>
+						<th nowrap scope="col">Source Term</th>
+						<th nowrap scope="col">Term Translation</th>
+						<th nowrap scope="col">New to</th>
+						{% block contentContentColumnHeader %}<!--th nowrap scope="col">Content Type</th-->{% endblock contentContentColumnHeader %}
+						<!--th nowrap scope="col">Date<br/>Requested</th-->
+						<th nowrap scope="col">Last<br/>Update</th>
+						<th nowrap scope="col">Last<br/>Translation</th>
+						<th nowrap scope="col">Translated By</th>
+						<th nowrap scope="col">SME<br/>Reviewed</th>
+						<th nowrap scope="col">Reviewed by</th>
+						<th nowrap scope="col">Approved</th>
+						<th nowrap scope="col">Approved by</th>
+					</tr>
+			</thead>
+			{% for term in terms %}
+				<tr class="{{ loop.cycle('oddRow', 'evenRow') }} trHover{% if term['Approved'] == '\x01' %} approvedRow{% endif %}" term-id="{{ term['TermID'] }}">
+					<td scope="row" align="center">
+						<div class="toggleImg"><img src="static/images/blank.png" data-src="static/images/clock-history-icon{% if term['HasArchive'] == 1 %}-check{% endif %}.png" width="16" height="16" alt="Show Translation History" title="Show Translation History" class="toggleClick showArchive lazy" border="0" style="display: inline;" /></div>
+						<div class="toggleImg"><img src="static/images/blank.png" data-src="static/images/blue-document-insert-icon.png" width="16" height="16" alt="Show Source Contexts" title="Show Source Contexts" class="toggleClick showContext lazy" border="0" style="display: inline;" /></div>
+						<div class="toggleImg"><img src="static/images/blank.png" data-src="static/images/balloons-box-icon{% if term['HasComments'] == 1 %}-check{% endif %}.png" width="16" height="16" alt="Show Comments" title="Show Comments" class="toggleClick showComments lazy" border="0" style="display: inline;" /></div>
+						<input type="hidden" value="{{ term['HasArchive'] }}"/>
+						<input type="hidden" value="{{ term['HasComments'] }}"/>
+					</td>
+					{% block contentProductColumnData scoped %}<td scope="row" align="center">{{ term['ProductCode'] }}</td>{% endblock contentProductColumnData %}
+					{% block contentLanguageColumnData scoped %}<td scope="row" align="center">{{ term['LangName'] }}</td>{% endblock contentLanguageColumnData %}
+					<td scope="row" align="center" id="ignoreField-{{ term['TermID'] }}" class="translateTerm-{{ term['TermID'] }}" style="display: none;"><div class="termCheckbox inverseColour" title="Ignore this Term"><input type="checkbox" name="ignoreTerm" id="ignoreTerm-{{ term['TermID'] }}"{% if term['IgnoreTerm'] == '\x01' %} checked{% endif %} /><label for="ignoreTerm-{{ term['TermID'] }}" /></div></td>
+					<td scope="row" align="center" id="ignoreContent-{{ term['TermID'] }}" class="translateTerm-{{ term['TermID'] }} translateTermToggle {% if term['IgnoreTerm'] == '\x00' %}greenCell{% else %}redCell{% endif %}">{% if term['IgnoreTerm'] == '\x01' %}yes{% else %}no{% endif %}</td>
+					<td scope="row">{{ term['Term'] }}</td>
+					<td scope="row" id="translationField-{{ term['TermID'] }}" class="translateTerm-{{ term['TermID'] }}" style="display: none;"><input type="text" name="termTranslation" id="termTranslation-{{ term['TermID'] }}" class="translationField" title="Enter the term translation here" placeholder="term translation"{% if term['TermTranslation'] %} value="{{ term['TermTranslation'] }}"{% endif %}/></td>
+					<td scope="row" id="translationContent-{{ term['TermID'] }}" class="translateTerm-{{ term['TermID'] }} translateTermToggle"{% if not term['TermTranslation'] and term['IgnoreTerm'] == '\x00' %} align="center"{% endif %}>{% if term['TermTranslation'] %}{{ term['TermTranslation'] }}{% elif term['IgnoreTerm'] == '\x00' %}click to translate{% endif %}</td>
+					<td scope="row" align="center">{{ term['NewTo'] }}</td>
+					{% block contentContentColumnData scoped %}<!--td scope="row" align="center">{{ term['ContentType'] }}</td-->{% endblock contentContentColumnData %}
+					<!--td scope="row" id="dateRequested-{{ term['TermID'] }}" align="center">{{ term['DateRequested'] }}</td-->
+					<td scope="row" id="dateUpdated-{{ term['TermID'] }}" align="center">{% if term['DateUpdated'] %}{{ term['DateUpdated'] }}{% else %}never{% endif %}</td>
+					<td scope="row" id="dateTranslated-{{ term['TermID'] }}" align="center">{% if term['DateTranslated'] %}{{ term['DateTranslated'] }}{% else %}never{% endif %}</td>
+					<td scope="row" id="translateUser-{{ term['TermID'] }}" align="center">{% if term['TranslateUserID'] %}{{ term['TranslateUserID'] }}{% else %}n/a{% endif %}</td>
+					<td scope="row" align="center" id="verifyField-{{ term['TermID'] }}" class="translateTerm-{{ term['TermID'] }}" style="display: none;"><div class="termCheckbox" title="Verify Term Translation"><input type="checkbox" name="verifyTerm" id="verifyTerm-{{ term['TermID'] }}"{% if term['Verified'] == '\x01' %} checked{% endif %} /><label for="verifyTerm-{{ term['TermID'] }}" /></div></td>
+					<td scope="row" align="center" id="verifyContent-{{ term['TermID'] }}" class="translateTerm-{{ term['TermID'] }} translateTermToggle {% if term['Verified'] == '\x01' %}greenCell{% endif %}">{% if term['Verified'] == '\x01' %}yes{% else %}no{% endif %}</td>
+					<td scope="row" id="verifyUser-{{ term['TermID'] }}" align="center">{% if term['VerifyUserID'] %}{{ term['VerifyUserID'] }}{% else %}n/a{% endif %}</td>
+					<td scope="row" align="center" id="approveField-{{ term['TermID'] }}" class="translateTerm-{{ term['TermID'] }}" style="display: none;"><div class="termCheckbox" title="Approve Term Translation"><input type="checkbox" name="approveTerm" id="approveTerm-{{ term['TermID'] }}"{% if term['Approved'] == '\x01' %} checked{% endif %} /><label for="approveTerm-{{ term['TermID'] }}" /></div></td>
+					<td scope="row" align="center" id="approveContent-{{ term['TermID'] }}" class="translateTerm-{{ term['TermID'] }} translateTermToggle {% if term['Approved'] == '\x01' %}greenCell{% else %}redCell{% endif %}">{% if term['Approved'] == '\x01' %}yes{% else %}no{% endif %}</td>
+					<td scope="row" id="approveUser-{{ term['TermID'] }}" align="center">{% if term['ApproveUserID'] %}{{ term['ApproveUserID'] }}{% else %}n/a{% endif %}</td>
+				</tr>
+				<tr class="{{ loop.cycle('oddRow', 'evenRow') }} translateTermControlsRow-{{ term['TermID'] }}" style="display: none;" term-id="{{ term['TermID'] }}">
+					<td scope="row" colspan="{{ contentColumnCount }}">
+					<div class="toggle viewSubDiv" style="display: none;" id="translateTermControls-{{ term['TermID'] }}">
+						<input type="button" name="save" value="Save" class="termListButton saveTranslationButton" form="translateForm-{{ term['TermID'] }}" />
+						<input type="button" name="cancel" value="Cancel" class="termListButton cancelTranslationButton" form="translateForm-{{ term['TermID'] }}" />
+					</div>
+					</td>
+				</tr>
+				<tr class="{{ loop.cycle('oddRow', 'evenRow') }} rowChildArchive-{{ term['TermID'] }}" style="display: none;">
+					<td scope="row" colspan="{{ contentColumnCount }}">
+					<div class="toggle viewSubDiv" style="display: none;" id="loading-archive-{{ term['TermID'] }}">
+					<span>Loading…</span><img src="static/images/blank.png" data-src="static/images/loading1.gif" class="lazyLoading" alt="Loading…" width="13" height="13" /></div>
+					<div class="viewSubDiv" style="display: none;" id="archive-{{ term['TermID'] }}"></div>
+					</td>
+				</tr>
+				<tr class="{{ loop.cycle('oddRow', 'evenRow') }} rowChildContext-{{ term['TermID'] }}" style="display: none;">
+					<td scope="row" colspan="{{ contentColumnCount }}">
+					<div class="toggle viewSubDiv" style="display: none;" id="loading-context-{{ term['TermID'] }}">
+					<span>Loading…</span><img src="static/images/blank.png" data-src="static/images/loading1.gif" class="lazyLoading" alt="Loading…" width="13" height="13" /></div>
+					<div class="viewSubDiv" style="display: none;" id="context-{{ term['TermID'] }}"></div>
+					</td>
+				</tr>
+				<tr class="{{ loop.cycle('oddRow', 'evenRow') }} rowChildComments-{{ term['TermID'] }}" style="display: none;">
+					<td scope="row" colspan="{{ contentColumnCount }}">
+					<div class="toggle viewSubDiv" style="display: none;" id="loading-comments-{{ term['TermID'] }}">
+					<span>Loading…</span><img src="static/images/blank.png" data-src="static/images/loading1.gif" class="lazyLoading" alt="Loading…" width="13" height="13" /></div>
+					<div class="viewSubDiv" style="display: none;" id="comments-{{ term['TermID'] }}" term-id="{{ term['TermID'] }}"></div>
+					</td>
+				</tr>
+			{% endfor %}
+			</table>
+			<script src="static/jail.js"></script>
+			<script src="static/table.js"></script>
+		</div>
+		
+		<div id="confirmDiscardChanges" title="Discard changes?" style="display: none;">
+			<p><span class="ui-icon ui-icon-alert" style="float: left; margin: 0 7px 20px 0;"></span>If you click ‘Yes’,<br/>your changes will be discarded!</p>
+		</div>
+		
+		{% else %}
+		<p>{% block contentNoTerms %}{% endblock contentNoTerms %}</p>
+		{% endif %}
+{% endblock content %}
+

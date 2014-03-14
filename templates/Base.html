@@ -1,0 +1,130 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.2 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+	<!--base href="http://localhost:8080/" /-->
+	<base href="http://ec2-50-16-68-84.compute-1.amazonaws.com{% if STAGING %}:5000{% endif %}" />
+	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+	<meta name="description" content="Terminology translation and management website for localisation at Autodesk." />
+	<meta name="keywords" content="autodesk,terminology,translation,localisation" />
+	<meta name="author" content="Ventsislav Zhechev" />
+	<link rel="stylesheet" type="text/css" href="static/multi-options.css" title="Multi Options" media="all" />
+	<link rel="stylesheet" type="text/css" href="static/jquery.confirm/jquery.confirm.css" media="all" />
+	<title>{% block title %}{% endblock %} — Autodesk Term Translation Central{% if STAGING %} ★ STAGING{% endif %}</title>
+</head>
+
+<body class="blue helvetica">
+
+<div id="wrap">
+	<div id="header">
+		<div id="headerimage">
+			<img src="static/images/autodesk-logo-color-text-black-rgb-large.png" width="500" height="84" alt="Autodesk Corporate Logo" />
+		</div>
+	
+		<div id="title">
+			<h1><a href="index.html">Term Translation Central</a></h1>
+			<p class="slogan">Autodesk Localization Services{% if STAGING %}<br/>★ STAGING ★ STAGING ★{% endif %}</p>
+		</div>
+	</div>
+	
+	<nav id="sidebar">
+		{% block loginDetails %}
+		<div class='userDetails'>{% if userID %}{{ userName }}<br/><a href="#" id="logoutLink">logout</a>{% else %}<a href="#" id="loginLink">login</a>{% endif %}</div>
+		{% endblock loginDetails %}
+		<ul class="sidemenu">
+			{% block currentJob %}
+			{% endblock currentJob %}
+			<li><a href="#" class="sidebarTitle">Quick Access</a>
+				<div class="sidebarContent" id="contentAccess" style="display:none; overflow:hidden;">
+				<ul>
+					<li><strong>Jobs</strong></li>
+					<li><select id="productAccessJobs">
+						<option value=0>All products</option>
+						{% for product in quickAccess['product'] %}
+						<option value={{ product['ID'] }}>{{ product['ProductName'] }}</option>
+						{% endfor %}
+					</select></li>
+					<li><select id="languageAccessJobs">
+						<option value=0>All languages</option>
+						{% for language in quickAccess['language'] %}
+						<option value={{ language['ID'] }}>{{ language['LangName'] }}</option>
+						{% endfor %}
+					</select></li>
+					<li><a href="#" class="quickAccessJobs">Go!</a></li>
+				</ul>
+				<ul>
+					<li><strong>Terms</strong></li>
+					<li><select id="productAccessTerms">
+						<option value=0>All products</option>
+						{% for product in quickAccess['product'] %}
+						<option value={{ product['ID'] }}>{{ product['ProductName'] }}</option>
+						{% endfor %}
+					</select></li>
+					<li><select id="languageAccessTerms">
+						<option value=0>All languages</option>
+						{% for language in quickAccess['language'] %}
+						<option value={{ language['ID'] }}>{{ language['LangName'] }}</option>
+						{% endfor %}
+					</select></li>
+					<li><a href="#" class="quickAccessTerms">Go!</a></li>
+				</ul>
+				<ul>
+					<li>&nbsp;</li>
+					<li><a href="LanguageList.html">List Languages</a></li>
+				</ul>
+				<ul>
+					<li><a href="ProductList.html">List Products</a></li>
+				</ul>
+				</div>
+			</li>
+			<li><a href="#" class="sidebarTitle">TBX Export</a>
+				<div class="sidebarContent" id="tbxExport" style="display:none; overflow:hidden;">
+				<ul>
+					<li><strong>Terms</strong></li>
+					<li><select id="tbxExportProduct">
+						<option value=0>All products</option>
+						{% for product in quickAccess['product'] %}
+						<option value={{ product['ID'] }}>{{ product['ProductName'] }}</option>
+						{% endfor %}
+					</select></li>
+					<li><select id="tbxExportLanguage">
+						<option value=0>All languages</option>
+						{% for language in quickAccess['language'] %}
+						<option value={{ language['ID'] }}>{{ language['LangName'] }}</option>
+						{% endfor %}
+					</select></li>
+					<li><a href="#" class="tbxExportTerms">Go!</a></li>
+				</ul>
+				</div>
+			</li>
+			{% block sidebarJobs %}
+			{% endblock sidebarJobs %}
+			{% block sidebarLanguages %}
+			{% endblock sidebarLanguages %}
+			{% block sidebarProducts %}
+			{% endblock sidebarProducts %}
+		</ul>
+	</nav>
+	
+	<div id="content">
+		<script src="http://code.jquery.com/jquery-2.0.3.min.js"></script>
+		<script src="static/jquery.confirm/jquery.confirm.js"></script>
+	{% block content %}
+	{% endblock content %}
+	</div>
+
+	<div id="footer">
+	<p>Copyright &copy; 2013 <a href="http://autodesk.com">Autodesk Inc.</a><br />
+	<a href="http://andreasviklund.com/templates/multi-options/">Template design</a> by <a href="http://andreasviklund.com/">Andreas Viklund</a><br />
+	<a href="http://cssdeck.com/labs/css-checkbox-styles">CSS checkboxes</a> by <a href="http://cssdeck.com/user/kushsolitary">Kushagra Agarwal</a>, 
+	<a href="http://tutorialzine.com/2010/12/better-confirm-box-jquery-css3/">CSS dialogs</a> by <a href="http://tutorialzine.com">Martin Angelov</a><br />
+	Icons by <a href="http://p.yusukekamiyamane.com/">Yusuke Kamiyamane</a>, 
+	<a href="http://sebarmeli.github.io/JAIL/">JAIL</a> by <a href="https://github.com/sebarmeli">Sebastiano Armeli-Battana</a><br />
+	</p>
+	</div>
+
+</div>
+
+<!--script src="static/blur.js"></script-->
+<script src="static/base.js"></script>
+</body>
+</html>

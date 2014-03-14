@@ -1,0 +1,41 @@
+						<span class="noCommentsSpan"{% if comments or new %} style="display: none"{% endif %}>No comments available for this term.</span>
+						<input type="button" name="addComment" value="Add comment" class="termListButton addCommentButton" {% if new or not userID %}style="display: none;" {% endif %}/>
+						{% if new %}
+						<form action="#" method="post" name="commentForm" id="commentForm-{{ termID }}" class="commentForm">
+						<input type="button" name="saveComment" value="Save comment" class="termListButton submitCommentButton" form="commentForm-{{ termID }}"/>
+						<input type="hidden" name="TermTranslationID" value="{{ termID }}" form="commentForm-{{ termID }}" />
+						{% endif %}
+						{% if comments or new %}
+						<table class="viewSubTable commentsTable" termID="{{ termID }}">
+							{% if new %}
+								<tr class="oddRow newCommentRow commentRow">
+									<td scope="row">
+										<div style="float: left;" class="commentInputArea"><img src="static/images/cross-icon.png" alt="Cancel" title="Cancel" class="deleteComment" border="0" width="16" height="16" /></div>
+										<div style="float: right;"><textarea name="Comment" title="Enter your comment here" placeholder="Enter your comment here" form="commentForm-{{ termID }}" /></div>
+									</td>
+									<td scope="row" align="center">{{ userName }}<input type="hidden" name="UserID" value="{{ userID }}" form="commentForm-{{ termID }}" /></td>
+									<td scope="row" align="center"></td>
+								</tr>
+							{% endif %}
+							{% for comment in comments %}
+								{% if new %}
+								<tr class="{{ loop.cycle('evenRow', 'oddRow') }} commentRow">
+								{% else %}
+								<tr class="{{ loop.cycle('oddRow', 'evenRow') }} commentRow">
+								{% endif %}
+									<td scope="row" width="500px">
+										<div style="float: left; margin-right: 5px;">
+											<img src="static/images/{% if userID and comment['ToDelete'] %}cross-icon{% else %}blank{% endif %}.png" alt="Delete Comment" title="Delete Comment" class="{% if userID and comment['ToDelete'] %}deleteComment{% endif %}" border="0" width="16" height="16" />
+											<input type="hidden" name="ID" value="{{ comment['ID'] }}" form="commentRowForm-{{ comment['ID'] }}" />
+										</div>
+										{% autoescape false %}{{ comment['Comment']|e|replace("\r\n", "<br/>") }}{% endautoescape %}
+									</td>
+									<td scope="row" align="center">{{ comment['UserID'] }}</td>
+									<td scope="row" align="center">{{ comment['CommentDate'] }}</td>
+								</tr>
+							{% endfor %}
+						</table>
+						{% if new %}
+						</form>
+						{% endif %}
+						{% endif %}
