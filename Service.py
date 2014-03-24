@@ -7,6 +7,9 @@
 # Created by Alok Goyal
 #
 # Changelog
+# v3.1.2	Modified on 24 Mar 2014 by Ventsislav Zhechev
+# Fixed a bug where login would fail for users with non-ascii characters in their username.
+#
 # v3.1.1	Modified on 17 Jan 2014 by Ventsislav Zhechev
 # Fixed a bug where the error stream redirection was using the wrong App name in production.
 #
@@ -62,6 +65,7 @@ from flask import request, session, render_template, redirect, make_response
 from forms import LoginForm
 import json
 import os, re
+from xml.sax.saxutils import escape
 import pymysql
 import urllib2, pyDes
 from pyDes import triple_des
@@ -288,11 +292,13 @@ def index():
 		logger.debug("Login attempted when loading index!")
 		key = triple_des(mainKey, pyDes.CBC, mainIV)
 		password = form.password.data.encode("utf-8")
-		cryptoPass = key.encrypt(password.encode('utf-16le'), padmode=pyDes.PAD_PKCS5)
-		logger.debug(render_template('authentication.xml', username=form.username.data.lower(), password=cryptoPass.encode('base64').rstrip()))
-		xmlResult = urllib2.urlopen(urllib2.Request(url="https://lsweb.autodesk.com/WWLAdminDS/WWLAdminDS.asmx", data=render_template('authentication.xml', username=form.username.data.lower(), password=cryptoPass.encode('base64').rstrip()), headers={"SOAPAction": "http://tempuri.org/GetUserAuth", "Content-Type": "text/xml; charset=utf-8"})).read()
-		logger.debug(xmlResult)
-		result = re.search('<GetUserAuthResult>.*<ID_USER>(\d+)</ID_USER>.*<FIRSTNAME>([\w \'-]+)</FIRSTNAME>.*<LASTNAME>([\w \'-]+)</LASTNAME>.*</GetUserAuthResult>', xmlResult)
+		cryptoPass = key.encrypt(password.encode('utf-16le'), padmode=pyDes.PAD_PKCS5).encode('base64').rstrip()
+		username = escape(form.username.data.lower()).encode('ascii', 'xmlcharrefreplace')
+		logger.debug("Username:" + username)
+		logger.debug(render_template('authentication.xml', username=username, password=cryptoPass.encode('base64').rstrip()))
+		xmlResult = urllib2.urlopen(urllib2.Request(url="https://lsweb.autodesk.com/WWLAdminDS/WWLAdminDS.asmx", data=render_template('authentication.xml', username=username, password=cryptoPass), headers={"SOAPAction": "http://tempuri.org/GetUserAuth", "Content-Type": "text/xml; charset=utf-8"})).read()
+		logger.debug(xmlResult.decode("utf-8"))
+		result = re.search('<GetUserAuthResult>.*<ID_USER>(\d+)</ID_USER>.*<FIRSTNAME>([\w \'-]+)</FIRSTNAME>.*<LASTNAME>([\w \'-]+)</LASTNAME>.*</GetUserAuthResult>', xmlResult.decode("utf-8"), re.U)
 		if result:
 			userID = int(result.group(1))
 			userFirstName = result.group(2)
@@ -308,8 +314,8 @@ def index():
 			loginOK = True
 			if form.remember_me.data:
 				session['RememberMe'] = form.remember_me.data
-				session['UserLogin'] = form.username.data.lower()
-				session['UserPassword'] = cryptoPass.encode('base64').rstrip()
+				session['UserLogin'] = username
+				session['UserPassword'] = cryptoPass
 				session.permanent = True
 				app.permanent_session_lifetime = timedelta(days=365)
 			else:
@@ -334,7 +340,7 @@ def index():
 			key = triple_des(mainKey, pyDes.CBC, mainIV)
 			xmlResult = urllib2.urlopen(urllib2.Request(url="https://lsweb.autodesk.com/WWLAdminDS/WWLAdminDS.asmx", data=render_template('authentication.xml', username=session['UserLogin'], password=session['UserPassword']), headers={"SOAPAction": "http://tempuri.org/GetUserAuth", "Content-Type": "text/xml; charset=utf-8"})).read()
 #			logger.debug(xmlResult)
-			result = re.search('<GetUserAuthResult>.*<ID_USER>(\d+)</ID_USER>.*<FIRSTNAME>([\w \'-]+)</FIRSTNAME>.*<LASTNAME>([\w \'-]+)</LASTNAME>.*</GetUserAuthResult>', xmlResult)
+			result = re.search('<GetUserAuthResult>.*<ID_USER>(\d+)</ID_USER>.*<FIRSTNAME>([\w \'-]+)</FIRSTNAME>.*<LASTNAME>([\w \'-]+)</LASTNAME>.*</GetUserAuthResult>', xmlResult.decode("utf-8"), re.U)
 		else:
 			logger.debug(u"…but UserLogin not found when loading index!".encode("utf-8"))
 			session.pop('UserLogin', None)
