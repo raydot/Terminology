@@ -1,0 +1,9 @@
+.DS_Store
+
+*.py[cod]
+
+auxiliaryData/
+static/blur*
+static/sebarmeli*
+static/js/
+static/DES*
