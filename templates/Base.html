@@ -44,7 +44,7 @@
 						{% endfor %}
 					</select></li>
 					<li><select id="languageAccessJobs">
-						<option value=0>All languages</option>
+						<option value=0>All target languages</option>
 						{% for language in quickAccess['language'] %}
 						<option value={{ language['ID'] }}>{{ language['LangName'] }}</option>
 						{% endfor %}
@@ -60,7 +60,7 @@
 						{% endfor %}
 					</select></li>
 					<li><select id="languageAccessTerms">
-						<option value=0>All languages</option>
+						<option value=0>All target languages</option>
 						{% for language in quickAccess['language'] %}
 						<option value={{ language['ID'] }}>{{ language['LangName'] }}</option>
 						{% endfor %}
@@ -69,7 +69,7 @@
 				</ul>
 				<ul>
 					<li>&nbsp;</li>
-					<li><a href="LanguageList.html">List Languages</a></li>
+					<li><a href="LanguageList.html">List Target Languages</a></li>
 				</ul>
 				<ul>
 					<li><a href="ProductList.html">List Products</a></li>

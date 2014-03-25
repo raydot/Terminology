@@ -251,8 +251,10 @@ INSERT INTO Terminology_staging.ContentTypes (ContentType, LastUpdate) VALUES ('
 INSERT INTO Terminology_staging.ContentTypes (ContentType, LastUpdate) VALUES ('Documentation', null);
 INSERT INTO Terminology_staging.ContentTypes (ContentType, LastUpdate) VALUES ('Both', null);
 
+INSERT INTO Terminology_staging.TargetLanguages (LangCode2Ltr, LangCode3Ltr, LangName, LastUpdate) VALUES ('ar-sa', 'ara', 'Arabic (Saudi Arabia)', null);
 INSERT INTO Terminology_staging.TargetLanguages (LangCode2Ltr, LangCode3Ltr, LangName, LastUpdate) VALUES ('cs', 'csy', 'Czech', null);
 INSERT INTO Terminology_staging.TargetLanguages (LangCode2Ltr, LangCode3Ltr, LangName, LastUpdate) VALUES ('de', 'deu', 'German', null);
+INSERT INTO Terminology_staging.TargetLanguages (LangCode2Ltr, LangCode3Ltr, LangName, LastUpdate) VALUES ('en-uk', 'eng', 'UK English', null);
 INSERT INTO Terminology_staging.TargetLanguages (LangCode2Ltr, LangCode3Ltr, LangName, LastUpdate) VALUES ('es', 'esp', 'Spanish', null);
 INSERT INTO Terminology_staging.TargetLanguages (LangCode2Ltr, LangCode3Ltr, LangName, LastUpdate) VALUES ('fr', 'fra', 'French', null);
 INSERT INTO Terminology_staging.TargetLanguages (LangCode2Ltr, LangCode3Ltr, LangName, LastUpdate) VALUES ('hu', 'hun', 'Hungarian', null);
@@ -273,11 +275,8 @@ INSERT INTO Terminology_staging.Glossaries (GlossaryName, LastUpdate) VALUES ('A
 INSERT INTO Terminology_staging.Glossaries (GlossaryName, LastUpdate) VALUES ('ACD', null);
 INSERT INTO Terminology_staging.Glossaries (GlossaryName, LastUpdate) VALUES ('ADR', null);
 INSERT INTO Terminology_staging.Glossaries (GlossaryName, LastUpdate) VALUES ('ADS', null);
-INSERT INTO Terminology_staging.Glossaries (GlossaryName, LastUpdate) VALUES ('ADSK360', null);
-INSERT INTO Terminology_staging.Glossaries (GlossaryName, LastUpdate) VALUES ('AIRMAX', null);
 INSERT INTO Terminology_staging.Glossaries (GlossaryName, LastUpdate) VALUES ('ALSK', null);
 INSERT INTO Terminology_staging.Glossaries (GlossaryName, LastUpdate) VALUES ('ACM', null);
-INSERT INTO Terminology_staging.Glossaries (GlossaryName, LastUpdate) VALUES ('APPSTORE', null);
 INSERT INTO Terminology_staging.Glossaries (GlossaryName, LastUpdate) VALUES ('AQTO', null);
 INSERT INTO Terminology_staging.Glossaries (GlossaryName, LastUpdate) VALUES ('ACA', null);
 INSERT INTO Terminology_staging.Glossaries (GlossaryName, LastUpdate) VALUES ('ARDES', null);
@@ -285,7 +284,6 @@ INSERT INTO Terminology_staging.Glossaries (GlossaryName, LastUpdate) VALUES ('A
 INSERT INTO Terminology_staging.Glossaries (GlossaryName, LastUpdate) VALUES ('BDS', null);
 INSERT INTO Terminology_staging.Glossaries (GlossaryName, LastUpdate) VALUES ('BLDSYS', null);
 INSERT INTO Terminology_staging.Glossaries (GlossaryName, LastUpdate) VALUES ('BUZZ', null);
-INSERT INTO Terminology_staging.Glossaries (GlossaryName, LastUpdate) VALUES ('CERCIP', null);
 INSERT INTO Terminology_staging.Glossaries (GlossaryName, LastUpdate) VALUES ('CIV3D', null);
 INSERT INTO Terminology_staging.Glossaries (GlossaryName, LastUpdate) VALUES ('CLOUDS', null);
 INSERT INTO Terminology_staging.Glossaries (GlossaryName, LastUpdate) VALUES ('RSA', null);
@@ -327,13 +325,13 @@ INSERT INTO Terminology_staging.Products (ProductCode, ProductName, GlossID, Las
 INSERT INTO Terminology_staging.Products (ProductCode, ProductName, GlossID, LastUpdate) VALUES ('ACDWS', 'AutoCAD WS', 5, null);
 INSERT INTO Terminology_staging.Products (ProductCode, ProductName, GlossID, LastUpdate) VALUES ('ADR', 'Autodesk Design Review', 6, null);
 INSERT INTO Terminology_staging.Products (ProductCode, ProductName, GlossID, LastUpdate) VALUES ('ADS', 'AutoCAD Design Suite', 7, null);
-INSERT INTO Terminology_staging.Products (ProductCode, ProductName, GlossID, LastUpdate) VALUES ('ADSK360', 'Autodesk 360', 8, null);
-INSERT INTO Terminology_staging.Products (ProductCode, ProductName, GlossID, LastUpdate) VALUES ('AIRMAX', 'AIRMAX', 9, null);
+INSERT INTO Terminology_staging.Products (ProductCode, ProductName, GlossID, LastUpdate) VALUES ('ADSK360', 'Autodesk 360', 32, null);
+INSERT INTO Terminology_staging.Products (ProductCode, ProductName, GlossID, LastUpdate) VALUES ('AIRMAX', 'AIRMAX', 32, null);
 INSERT INTO Terminology_staging.Products (ProductCode, ProductName, GlossID, LastUpdate) VALUES ('ALSK', 'Autodesk SketchBook Designer', 10, null);
 INSERT INTO Terminology_staging.Products (ProductCode, ProductName, GlossID, LastUpdate) VALUES ('ALSKACD', 'Autodesk SketchBook Designer for AutoCAD', 10, null);
 INSERT INTO Terminology_staging.Products (ProductCode, ProductName, GlossID, LastUpdate) VALUES ('ALSKINK', 'Autodesk SketchBook Ink', 10, null);
 INSERT INTO Terminology_staging.Products (ProductCode, ProductName, GlossID, LastUpdate) VALUES ('AMECH_PP', 'AutoCAD Mechanical', 11, null);
-INSERT INTO Terminology_staging.Products (ProductCode, ProductName, GlossID, LastUpdate) VALUES ('APPSTORE', 'APPSTORE', 12, null);
+INSERT INTO Terminology_staging.Products (ProductCode, ProductName, GlossID, LastUpdate) VALUES ('APPSTORE', 'APPSTORE', 32, null);
 INSERT INTO Terminology_staging.Products (ProductCode, ProductName, GlossID, LastUpdate) VALUES ('AQTO', 'Autodesk Quantity Takeoff', 13, null);
 INSERT INTO Terminology_staging.Products (ProductCode, ProductName, GlossID, LastUpdate) VALUES ('ARCHDESK', 'Architectural Desktop', 14, null);
 INSERT INTO Terminology_staging.Products (ProductCode, ProductName, GlossID, LastUpdate) VALUES ('ARDES', 'AutoCAD Raster Design', 15, null);
@@ -341,7 +339,7 @@ INSERT INTO Terminology_staging.Products (ProductCode, ProductName, GlossID, Las
 INSERT INTO Terminology_staging.Products (ProductCode, ProductName, GlossID, LastUpdate) VALUES ('BDS', 'Autodesk Building Design Suite', 17, null);
 INSERT INTO Terminology_staging.Products (ProductCode, ProductName, GlossID, LastUpdate) VALUES ('BLDSYS', 'Building System', 18, null);
 INSERT INTO Terminology_staging.Products (ProductCode, ProductName, GlossID, LastUpdate) VALUES ('BZSW', 'Buzzsaw', 19, null);
-INSERT INTO Terminology_staging.Products (ProductCode, ProductName, GlossID, LastUpdate) VALUES ('CERCIP', 'Autodesk Customer Involvement Program', 20, null);
+INSERT INTO Terminology_staging.Products (ProductCode, ProductName, GlossID, LastUpdate) VALUES ('CERCIP', 'Autodesk Customer Involvement Program', 32, null);
 INSERT INTO Terminology_staging.Products (ProductCode, ProductName, GlossID, LastUpdate) VALUES ('CIV3D', 'Autodesk Civil 3D', 21, null);
 INSERT INTO Terminology_staging.Products (ProductCode, ProductName, GlossID, LastUpdate) VALUES ('CLOUDS', 'Autodesk ReCap', 22, null);
 INSERT INTO Terminology_staging.Products (ProductCode, ProductName, GlossID, LastUpdate) VALUES ('CLOUD_RSA', 'Autodesk Robot Structural Analysis 360', 23, null);
@@ -380,6 +378,8 @@ INSERT INTO Terminology_staging.Products (ProductCode, ProductName, GlossID, Las
 INSERT INTO Terminology_staging.Products (ProductCode, ProductName, GlossID, LastUpdate) VALUES ('ADSTPR', 'Autodesk Advance Steel', 49, null);
 INSERT INTO Terminology_staging.Products (ProductCode, ProductName, GlossID, LastUpdate) VALUES ('ADSTCP', 'Autodesk Advance Concrete', 49, null);
 INSERT INTO Terminology_staging.Products (ProductCode, ProductName, GlossID, LastUpdate) VALUES ('CFG360', 'Configurator 360', 29, null);
+INSERT INTO Terminology_staging.Products (ProductCode, ProductName, GlossID, LastUpdate) VALUES ('MYADSK', 'My Autodesk', 32, null);
+INSERT INTO Terminology_staging.Products (ProductCode, ProductName, GlossID, LastUpdate) VALUES ('RENDERING', 'Autodesk 360 Rendering', 32, null);
 
 END;
 
@@ -452,3 +452,7 @@ select LangName, count(*) from TermList where IgnoreTerm = b'0' and TranslateUse
 and ProductCode = 'VLT'
 group by LangName
 order by LangName asc
+
+select * from Terminology.TermList where ProductCode = 'AIRMAX' or ProductCode = 'CERCIP' or ProductCode = 'APPSTORE' or ProductCode = 'LIRAFX' or ProductCode = 'ADSK360'
+
+update Terminology.TermTranslations set GlossID = 32 where ProductID = (select ID from Terminology.Products where ProductCode = 'APPSTORE')

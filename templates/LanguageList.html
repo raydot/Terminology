@@ -1,17 +1,17 @@
 {% extends "TermListBase.html" %}
-{% block title %}Language List{% endblock %}
+{% block title %}Target Language List{% endblock %}
 {% block currentJob %}{% endblock currentJob %}
 {% block sidebarLanguages %}{% endblock sidebarLanguages %}
 {% block sidebarProducts %}{{ super() }}{% endblock sidebarProducts %}
 {% block sidebarJobs %}{{ super() }}{% endblock sidebarJobs %}
 {% block contentTypeList %}{{ super() }}{% endblock contentTypeList %}
 {% block content %}
-		<h2>Term extraction statistics by language</h2>
-		<p>The table lists all languages currently available on the system.</p>
+		<h2>Term extraction statistics by target language</h2>
+		<p>The table lists all target languages currently available on the system.<br/>(The source language is always US English.)</p>
 		<div class="tabularContent"><table class="viewTable">
 			<thead>
 				<tr>
-					<th nowrap scope="col">Language Name</th>
+					<th nowrap scope="col">Target Language Name</th>
 						<th nowrap scope="col">2-letter Code</th>
 						<th nowrap scope="col">3-letter Code</th>
 						<th nowrap scope="col">Jobs<br/>Pending</th>
