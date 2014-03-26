@@ -254,7 +254,7 @@ INSERT INTO Terminology_staging.ContentTypes (ContentType, LastUpdate) VALUES ('
 INSERT INTO Terminology_staging.TargetLanguages (LangCode2Ltr, LangCode3Ltr, LangName, LastUpdate) VALUES ('ar-sa', 'ara', 'Arabic (Saudi Arabia)', null);
 INSERT INTO Terminology_staging.TargetLanguages (LangCode2Ltr, LangCode3Ltr, LangName, LastUpdate) VALUES ('cs', 'csy', 'Czech', null);
 INSERT INTO Terminology_staging.TargetLanguages (LangCode2Ltr, LangCode3Ltr, LangName, LastUpdate) VALUES ('de', 'deu', 'German', null);
-INSERT INTO Terminology_staging.TargetLanguages (LangCode2Ltr, LangCode3Ltr, LangName, LastUpdate) VALUES ('en-uk', 'eng', 'UK English', null);
+INSERT INTO Terminology_staging.TargetLanguages (LangCode2Ltr, LangCode3Ltr, LangName, LastUpdate) VALUES ('en-gb', 'eng', 'UK English', null);
 INSERT INTO Terminology_staging.TargetLanguages (LangCode2Ltr, LangCode3Ltr, LangName, LastUpdate) VALUES ('es', 'esp', 'Spanish', null);
 INSERT INTO Terminology_staging.TargetLanguages (LangCode2Ltr, LangCode3Ltr, LangName, LastUpdate) VALUES ('fr', 'fra', 'French', null);
 INSERT INTO Terminology_staging.TargetLanguages (LangCode2Ltr, LangCode3Ltr, LangName, LastUpdate) VALUES ('hu', 'hun', 'Hungarian', null);
