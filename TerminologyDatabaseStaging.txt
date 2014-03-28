@@ -217,7 +217,7 @@ WHERE TermTranslations.TranslateUserID IS NOT NULL
 ORDER BY PendingJobs.DateProcessed DESC, SourceTerms.Term ASC;
 
 CREATE ALGORITHM = MERGE VIEW Terminology_staging.JobList AS
-SELECT PendingJobs.ID as JobID, Products.ProductCode, Products.ProductName, TargetLanguages.LangCode3Ltr, TargetLanguages.LangName, ContentTypes.ContentType, PendingJobs.Pending, PendingJobs.DatePosted, PendingJobs.DateProcessed, (SELECT COUNT(ID) FROM TermTranslations WHERE PendingJobs.ID = TermTranslations.JobID AND TermTranslations.Approved = 0) AS TermsPending, (PendingJobs.Pending = b'0' AND (SELECT COUNT(ID) FROM TermTranslations WHERE PendingJobs.ID = TermTranslations.JobID AND TermTranslations.Approved = 0) = 0) AS Completed
+SELECT PendingJobs.ID as JobID, Products.ProductCode, Products.ProductName, TargetLanguages.LangCode3Ltr, TargetLanguages.LangName, ContentTypes.ContentType, PendingJobs.Pending, PendingJobs.DatePosted, PendingJobs.DateProcessed, (SELECT COUNT(ID) FROM TermTranslations WHERE PendingJobs.ID = TermTranslations.JobID AND TermTranslations.Approved = b'0' AND TermTranslations.IgnoreTerm != b'1') AS TermsPending, (PendingJobs.Pending = b'0' AND (SELECT COUNT(ID) FROM TermTranslations WHERE PendingJobs.ID = TermTranslations.JobID AND TermTranslations.Approved = b'0' AND TermTranslations.IgnoreTerm != b'1') = 0) AS Completed
 FROM PendingJobs
 INNER JOIN Products ON Products.ID = PendingJobs.ProductID
 INNER JOIN TargetLanguages ON TargetLanguages.ID = PendingJobs.LanguageID
@@ -257,6 +257,7 @@ INSERT INTO Terminology_staging.TargetLanguages (LangCode2Ltr, LangCode3Ltr, Lan
 INSERT INTO Terminology_staging.TargetLanguages (LangCode2Ltr, LangCode3Ltr, LangName, LastUpdate) VALUES ('en-gb', 'eng', 'UK English', null);
 INSERT INTO Terminology_staging.TargetLanguages (LangCode2Ltr, LangCode3Ltr, LangName, LastUpdate) VALUES ('es', 'esp', 'Spanish', null);
 INSERT INTO Terminology_staging.TargetLanguages (LangCode2Ltr, LangCode3Ltr, LangName, LastUpdate) VALUES ('fr', 'fra', 'French', null);
+INSERT INTO Terminology_staging.TargetLanguages (LangCode2Ltr, LangCode3Ltr, LangName, LastUpdate) VALUES ('gr', 'ell', 'Greek', null);
 INSERT INTO Terminology_staging.TargetLanguages (LangCode2Ltr, LangCode3Ltr, LangName, LastUpdate) VALUES ('hu', 'hun', 'Hungarian', null);
 INSERT INTO Terminology_staging.TargetLanguages (LangCode2Ltr, LangCode3Ltr, LangName, LastUpdate) VALUES ('it', 'ita', 'Italian', null);
 INSERT INTO Terminology_staging.TargetLanguages (LangCode2Ltr, LangCode3Ltr, LangName, LastUpdate) VALUES ('ja', 'jpn', 'Japanese', null);
