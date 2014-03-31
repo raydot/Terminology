@@ -216,7 +216,7 @@ INNER JOIN PendingJobs ON PendingJobs.ID = TermTranslations.JobID
 WHERE TermTranslations.TranslateUserID IS NOT NULL
 ORDER BY PendingJobs.DateProcessed DESC, SourceTerms.Term ASC;
 
-CREATE ALGORITHM = MERGE VIEW Terminology_staging.JobList AS
+CREATE ALGORITHM = MERGE VIEW Terminology.JobList AS
 SELECT PendingJobs.ID as JobID, Products.ProductCode, Products.ProductName, TargetLanguages.LangCode3Ltr, TargetLanguages.LangName, ContentTypes.ContentType, PendingJobs.Pending, PendingJobs.DatePosted, PendingJobs.DateProcessed, (SELECT COUNT(ID) FROM TermTranslations WHERE PendingJobs.ID = TermTranslations.JobID AND TermTranslations.Approved = b'0' AND TermTranslations.IgnoreTerm != b'1') AS TermsPending, (PendingJobs.Pending = b'0' AND (SELECT COUNT(ID) FROM TermTranslations WHERE PendingJobs.ID = TermTranslations.JobID AND TermTranslations.Approved = b'0' AND TermTranslations.IgnoreTerm != b'1') = 0) AS Completed
 FROM PendingJobs
 INNER JOIN Products ON Products.ID = PendingJobs.ProductID
@@ -457,3 +457,6 @@ order by LangName asc
 select * from Terminology.TermList where ProductCode = 'AIRMAX' or ProductCode = 'CERCIP' or ProductCode = 'APPSTORE' or ProductCode = 'LIRAFX' or ProductCode = 'ADSK360'
 
 update Terminology.TermTranslations set GlossID = 32 where ProductID = (select ID from Terminology.Products where ProductCode = 'APPSTORE')
+
+
+select NewTo, count(1) from Terminology.TermList where JobID = 368 group by NewTo
