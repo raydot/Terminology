@@ -1,12 +1,16 @@
-#!/sw/bin/python2.7
 # -*- coding: utf-8 -*-
 #####################
 #
-# © 2012–2013 Autodesk Development Sàrl
+# © 2012–2014 Autodesk Development Sàrl
 #
 # Created by Petra Ribiczey
 #
 # Changelog
+# v3.6			Modified on 21 May 2014 by Ventsislav Zhechev
+# Updated to connect to new Solr setup for term lookup.
+# Added a few status messages.
+# Removed some dead code.
+#
 # v3.5			Modified on 16 Nov 2013 by Ventsislav Zhechev
 # Switched to using a logger provided by the Service module for debug output.
 # Fixed a bug with some global counters.
@@ -159,7 +163,6 @@ def trainPOSTagger(useTnTTagger):
 	global pos_tagger
 	global adskCorpusRoot
 	# Train TNT/Brill POS-tagger using own training data + treebank data from nltk. Tested that using treebank data improves results.
-	# (As I remember, I had to add the 'autodesk' folder to nltk separately.)
 
 	autodesk = TaggedCorpusReader(adskCorpusRoot, '.*', encoding='utf-8')
 	train_sents =  autodesk.tagged_sents() + treebank.tagged_sents()
@@ -225,9 +228,9 @@ def trainPOSTagger(useTnTTagger):
 
 # Define harvesting process
 
-# 'new_content' is the text to harvest terms from
+# 'content' is the text to harvest terms from
 # 'lang' is the target language
-# 'prod_name' is the product code on NeXLT
+# 'prods' is a list of product codes on NeXLT
 # example for a string that is in an Inventor product: Getterms("Define user-specific information %d", 'jpn', 'INV'])
 def Getterms(content, lang, prods, returnJSON):
 	global __debug_on__, bad_stemmer_1, bad_stemmer_3, bad_stemmer_4
@@ -235,20 +238,12 @@ def Getterms(content, lang, prods, returnJSON):
 
 	Service.logger.debug("Started processing for %d segments for language %s" % (len(content), lang))
 
-	# Test if input text is unicode
-	# !!! Not implemented. Couldn't find a reliable application for the unicode test.
-
-	
-	# Prepare text (remove BOM from file, if present)
-#	if new_content[0] == u'\ufeff':
-#		new_content = new_content[1:]
 	
 	new_content = set()
 	new_content_orig = ""
 	new_content_orig_tok = set()
 	
 	for seg in set(content):
-#		seg = seg.encode("utf-8")
 		seg = seg.replace('\\r','\r') # Treating UI strings containing \r escapes
 		seg = seg.replace('\\n','\n') # Treating UI strings containing \n escapes
 		seg = seg.replace('\r\n','\n')# Collapsing new lines
@@ -456,12 +451,7 @@ def Getterms(content, lang, prods, returnJSON):
 	compounds_new_to_the_ngram_set = set()
 	
 	
-#	if __debug_on__:
-#		Service.logger.debug("Started first database lookup.")
-	
 	counter = 0
-#	conn = Service.connectToDB()
-#	cursor = conn.cursor()
 	for wrd in new_chunks:
 		if __debug_on__:
 			counter += 1
@@ -469,8 +459,6 @@ def Getterms(content, lang, prods, returnJSON):
 				Service.logger.debug(".")
 			if not counter % 5000:
 				Service.logger.debug(str(counter))
-#		found = cursor.execute("select nGram from nGramsCIV3D where nGram rlike '(^| )%s( |$)' limit 1" % wrd)
-#		if not found:
 		if re.search(" " + wrd + " ", ngrams[lang]) == None:
 			compounds_new_to_the_ngram_set.add(wrd)
 
@@ -506,13 +494,9 @@ def Getterms(content, lang, prods, returnJSON):
 				Service.logger.debug(".")
 			if not counter % 5000:
 				Service.logger.debug(str(counter))
-#		found = cursor.execute("select nGram from nGramsCIV3D where nGram rlike '(^| )%s( |$)' limit 1" % wrd)
-#		if not found:
 		if re.search(" " + wrd + " ", ngrams[lang]) == None:
 			nouns_new_to_tm_ngram_set.add(wrd)
 	
-#	conn.close()
-
 	if __debug_on__:
 		Service.logger.debug("Finished noun selection.")
 
@@ -561,8 +545,7 @@ def Getterms(content, lang, prods, returnJSON):
 		Service.logger.debug("Running NeXLT queries for " + str(len(new_words_and_compounds)) + " chunks...")
 	
 	def QueryNeXLT(term, language, prod_name):
-#		return 0
-		r = requests.get("http://ec2-54-227-78-139.compute-1.amazonaws.com:8983/solr/select/?wt=json&start=0&rows=1&q=enu%3A%22" + term + "%22%20AND%20product:"  + prod_name +  "%20AND%20" + language + ":['' TO *]&version=2.2")
+		r = requests.get("http://10.37.23.237:8983/solr/select/?wt=json&start=0&rows=1&q=enu%3A%22" + term + "%22%20AND%20product:"  + prod_name +  "%20AND%20" + language + ":['' TO *]")
 		r.encoding = "utf-8"
 		try:
 			response = r.json()['response']['numFound']
@@ -572,8 +555,7 @@ def Getterms(content, lang, prods, returnJSON):
 					   
 	
 	def QueryNeXLTAllProds(term, language):
-#		return 0
-		r = requests.get("http://ec2-54-227-78-139.compute-1.amazonaws.com:8983/solr/select/?wt=json&start=0&rows=1&q=enu%3A%22" + term + "%22%20AND%20product:"  + '*' +  "%20AND%20" + language + ":['' TO *]&version=2.2")
+		r = requests.get("http://10.37.23.237:8983/solr/select/?wt=json&start=0&rows=1&q=enu%3A%22" + term + "%22%20AND%20product:"  + '*' +  "%20AND%20" + language + ":['' TO *]")
 		r.encoding = "utf-8"
 		try:
 			response = r.json()['response']['numFound']
@@ -604,16 +586,15 @@ def Getterms(content, lang, prods, returnJSON):
 			terms.append([term, "Product", contexts, len(contexts), len(term)])
 				
 
-	if __debug_on__:
-		Service.logger.debug("Finished NeXLT calls.")
-
-		 
 
 	# Sort final term list and create json format
 	terms = sorted(terms, key=itemgetter(1,0), reverse=True)
 	
+	if __debug_on__:
+		Service.logger.debug("Finished NeXLT calls with %s new terms remaining." % len(terms))
+
+		 
 	if returnJSON:
-#	if False:
 		terms_for_json = {}
 
 		for listitem in terms:
@@ -633,37 +614,7 @@ def Getterms(content, lang, prods, returnJSON):
 	else:
 #		import pprint
 #		pprint.PrettyPrinter(indent=2).pprint(final_terms)
+		if __debug_on__:
+			Service.logger.debug("Finished final processing.")
+
 		return terms
-
-def main():
-	global __debug_on__
-	
-	import sys
-	
-	if len(sys.argv) >= 6 and sys.argv[5] == "DEBUG":
-		__debug_on__ = True
-		Service.logger.debug("DEBUGGING")
-
-	new_content = codecs.open(sys.argv[1], "r", "utf-8").read()
-	lang = sys.argv[2]
-	prod_name = sys.argv[3]
-
-	# Initialise system
-	init(None)
-	loadAuxiliaryData()
-
-	# Train POS tagger, using TNT tagger on request
-	if __debug_on__:
-		Service.logger.debug("Training POS Tagger...")
-	trainPOSTagger(len(sys.argv) >= 5 and sys.argv[4] == "1")
-
-	if __debug_on__:
-		Service.logger.debug("Finished loading and processing auxiliary data.")
-
-	print json.dumps(Getterms(sent_tokenizer.tokenize(new_content), lang, [prod_name], 1), sort_keys=True, indent=4, separators=(',', ': '))
-
-
-if __name__ == "__main__":
-#	import pdb
-#	pdb.run("main()")
-	main()

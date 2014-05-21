@@ -1,4 +1,3 @@
-#!/sw/bin/python2.7
 # -*- coding: utf-8 -*-
 #####################
 #
@@ -7,6 +6,9 @@
 # Created by Alok Goyal
 #
 # Changelog
+# v3.1.3	Modified on 21 May 2014 by Ventsislav Zhechev
+# Updated to connect to new MySQL setup.
+#
 # v3.1.2	Modified on 24 Mar 2014 by Ventsislav Zhechev
 # Fixed a bug where login would fail for users with non-ascii characters in their username.
 #
@@ -84,7 +86,7 @@ exitFlag = False
 logger = app.logger
 
 def connectToDB():
-	return pymysql.connect(host="localhost", port=3306, user="root", passwd="Demeter7", db=dbName, charset="utf8")
+	return pymysql.connect(host="10.37.23.228", port=3306, user="root", passwd="Demeter7", db=dbName, charset="utf8")
 	
 class termHarvestThread (threading.Thread):
 	def __init__(self, threadID):
