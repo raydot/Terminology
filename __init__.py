@@ -23,8 +23,8 @@ from flask import Flask
 Terminology_staging = Flask(__name__)
 Terminology_staging.config.from_object('config')
 
-from flask_wtf.csrf import CsrfProtect
-CsrfProtect(Terminology_staging)
+# from flask_wtf.csrf import CsrfProtect
+# CsrfProtect(Terminology_staging)
 
 from simplekv.memory import DictStore
 from flaskext.kvsession import KVSessionExtension
