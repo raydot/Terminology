@@ -6,6 +6,9 @@
 # Created by Alok Goyal
 #
 # Changelog
+# v3.1.4	Modified on 27 May 2014 by Ventsislav Zhechev
+# Fixed a bug where user names weren’t SQL-escaped, causing crashes.
+#
 # v3.1.3	Modified on 21 May 2014 by Ventsislav Zhechev
 # Updated to connect to new MySQL setup.
 #
@@ -307,7 +310,7 @@ def index():
 			userLastName = result.group(3)
 			conn = connectToDB()
 			cursor = conn.cursor()
-			cursor.execute("insert into Users(ID, FirstName, LastName) values(%s, '%s', '%s') on duplicate key update FirstName='%s', LastName='%s'" % (userID, userFirstName, userLastName, userFirstName, userLastName))
+			cursor.execute("insert into Users(ID, FirstName, LastName) values(%s, '%s', '%s') on duplicate key update FirstName='%s', LastName='%s'" % (userID, conn.escape_string(userFirstName), conn.escape_string(userLastName), conn.escape_string(userFirstName), conn.escape_string(userLastName)))
 			conn.commit()
 			conn.close()
 			session['UserID'] = userID
@@ -352,7 +355,7 @@ def index():
 			userLastName = result.group(3)
 			conn = connectToDB()
 			cursor = conn.cursor()
-			cursor.execute("insert into Users(ID, FirstName, LastName) values(%s, '%s', '%s') on duplicate key update FirstName='%s', LastName='%s'" % (userID, userFirstName, userLastName, userFirstName, userLastName))
+			cursor.execute("insert into Users(ID, FirstName, LastName) values(%s, '%s', '%s') on duplicate key update FirstName='%s', LastName='%s'" % (userID, conn.escape_string(userFirstName), conn.escape_string(userLastName), conn.escape_string(userFirstName), conn.escape_string(userLastName)))
 			conn.commit()
 			conn.close()
 			session['UserID'] = userID
