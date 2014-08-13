@@ -3,64 +3,67 @@
 #
 # © 2012–2014 Autodesk Development Sàrl
 #
-# Created by Petra Ribiczey
+# Created in 2012 by Petra Ribiczey
 #
 # Changelog
-# v3.6			Modified on 21 May 2014 by Ventsislav Zhechev
+# v3.6.1	Modified on 12 Aug 2014 by Ventsislav Zhechev
+# Modified to use aliases for staging and production Solr servers.
+#
+# v3.6		Modified on 21 May 2014 by Ventsislav Zhechev
 # Updated to connect to new Solr setup for term lookup.
 # Added a few status messages.
 # Removed some dead code.
 #
-# v3.5			Modified on 16 Nov 2013 by Ventsislav Zhechev
+# v3.5		Modified on 16 Nov 2013 by Ventsislav Zhechev
 # Switched to using a logger provided by the Service module for debug output.
 # Fixed a bug with some global counters.
 # Removed some unused imports.
 # 
-# v3.4			Modified on 05 Nov 2013 by Ventsislav Zhechev
+# v3.4		Modified on 05 Nov 2013 by Ventsislav Zhechev
 # Modified to use one ngram list per language to facilitate language-specific terminology extraction.
 #
-# v3.3			Modified on 04 Nov 2013 by Ventsislav Zhechev
+# v3.3		Modified on 04 Nov 2013 by Ventsislav Zhechev
 # Put in a MAJOR update to much of the chunk processing code geared towards speed optimisation.
 # Delayed the chunk substring lookup to the moment with the least number of chunks to check before sending data off to NeXLT.
 #
-# v3.2			Modified on 28 Oct 2013 by Ventsislav Zhechev
+# v3.2		Modified on 28 Oct 2013 by Ventsislav Zhechev
 # Removed the static processing of product names and available languages.
 #
-# v3.1			Modified on 21 Oct 2013 by Ventsislav Zhechev
+# v3.1		Modified on 21 Oct 2013 by Ventsislav Zhechev
 # Modified Getterms method to proces a list of segments, rather than a single string containing all data.
 # Simplified the generation of the final list of terms.
 #
-# v3.0.1		Modified on 18 Oct 2013 by Ventsislav Zhechev
+# v3.0.1	Modified on 18 Oct 2013 by Ventsislav Zhechev
 # Simplified portions of the source code
 #
-# v3				Modified on 15 Oct 2013 by Ventsislav Zhechev
+# v3			Modified on 15 Oct 2013 by Ventsislav Zhechev
 # Overhauled the architecture to allow the use as a module from within other Python scripts.
 # Removed dead/useless code
 # Improved code coherence
 #
-# v2.3.3		Modified on 29 Aug 2013 by Ventsislav Zhechev
+# v2.3.3	Modified on 29 Aug 2013 by Ventsislav Zhechev
 # Moved up the validation of the command line parameters to before the tokeniser training.
 # ‘NEW_PRODUCT’ is now an allowed product code option.
 # Fixed a bug where the empty string could be extracted as a term candidate.
 #
-# v2.3.2		Modified on 28 Aug 2013 by Ventsislav Zhechev
+# v2.3.2	Modified on 28 Aug 2013 by Ventsislav Zhechev
 # Fixed two index-out-of-bounds bugs.
 #
-# v2.3.1		Modified on 21 Jun 2013 by Ventsislav Zhechev
+# v2.3.1	Modified on 21 Jun 2013 by Ventsislav Zhechev
 # Modified the code to filter substring terms. Now we are keeping the longest term available.
 # Commented out all debug output.
 #
-# v2.3			Modified on 18 Jun 2013 by Ventsislav Zhechev
+# v2.3		Modified on 18 Jun 2013 by Ventsislav Zhechev
 # Fixed a few UTF-8 related issues.
 # Fixed a few minor bugs.
 # Switched off substring filtering, as it does not appear to be beneficial.
 #
-# v2.2			Modified on 17 Jun 2013 by Ventsislav Zhechev
+# v2.2		Modified on 17 Jun 2013 by Ventsislav Zhechev
 # Fixed a few bugs in chunk processing.
 # Reduced the memory usage through using a single temp list for chunks.
 # Reduced the number of cycles through the chunks by applying different filters in a single run.
 #
-# v2.1			Modified on 14 Jun 2013 by Ventsislav Zhechev
+# v2.1		Modified on 14 Jun 2013 by Ventsislav Zhechev
 # Added more progress output to stderr.
 # Combined some processing steps to improve performance.
 # Removed some unnecessary processing steps.
@@ -545,7 +548,11 @@ def Getterms(content, lang, prods, returnJSON):
 		Service.logger.debug("Running NeXLT queries for " + str(len(new_words_and_compounds)) + " chunks...")
 	
 	def QueryNeXLT(term, language, prod_name):
-		r = requests.get("http://10.37.23.237:8983/solr/select/?wt=json&start=0&rows=1&q=enu%3A%22" + term + "%22%20AND%20product:"  + prod_name +  "%20AND%20" + language + ":['' TO *]")
+		r = None
+		if Service.isStaging:
+			r = requests.get("http://aws.stg.solr:8983/solr/select/?wt=json&start=0&rows=1&q=enu%3A%22" + term + "%22%20AND%20product:"  + prod_name +  "%20AND%20" + language + ":['' TO *]")
+		else:
+			r = requests.get("http://aws.prd.solr:8983/solr/select/?wt=json&start=0&rows=1&q=enu%3A%22" + term + "%22%20AND%20product:"  + prod_name +  "%20AND%20" + language + ":['' TO *]")
 		r.encoding = "utf-8"
 		try:
 			response = r.json()['response']['numFound']
@@ -555,7 +562,11 @@ def Getterms(content, lang, prods, returnJSON):
 					   
 	
 	def QueryNeXLTAllProds(term, language):
-		r = requests.get("http://10.37.23.237:8983/solr/select/?wt=json&start=0&rows=1&q=enu%3A%22" + term + "%22%20AND%20product:"  + '*' +  "%20AND%20" + language + ":['' TO *]")
+		r = None
+		if Service.isStaging:
+			r = requests.get("http://aws.stg.solr:8983/solr/select/?wt=json&start=0&rows=1&q=enu%3A%22" + term + "%22%20AND%20product:"  + '*' +  "%20AND%20" + language + ":['' TO *]")
+		else:
+			r = requests.get("http://aws.prd.solr:8983/solr/select/?wt=json&start=0&rows=1&q=enu%3A%22" + term + "%22%20AND%20product:"  + '*' +  "%20AND%20" + language + ":['' TO *]")
 		r.encoding = "utf-8"
 		try:
 			response = r.json()['response']['numFound']

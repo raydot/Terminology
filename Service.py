@@ -3,9 +3,12 @@
 #
 # © 2013–2014 Autodesk Development Sàrl
 #
-# Created by Alok Goyal
+# Created in 2013 by Alok Goyal
 #
 # Changelog
+# v3.1.5	Modified on 12 Aug 2014 by Ventsislav Zhechev
+# Modified to use aliases for staging and production MySQL servers.
+#
 # v3.1.4	Modified on 27 May 2014 by Ventsislav Zhechev
 # Fixed a bug where user names weren’t SQL-escaped, causing crashes.
 #
@@ -89,7 +92,10 @@ exitFlag = False
 logger = app.logger
 
 def connectToDB():
-	return pymysql.connect(host="10.37.23.228", port=3306, user="root", passwd="Demeter7", db=dbName, charset="utf8")
+	if isStaging:
+		return pymysql.connect(host="aws.stg.mysql", port=3306, user="root", passwd="Demeter7", db=dbName, charset="utf8")
+	else:
+		return pymysql.connect(host="aws.prd.mysql", port=3306, user="root", passwd="Demeter7", db=dbName, charset="utf8")
 	
 class termHarvestThread (threading.Thread):
 	def __init__(self, threadID):
@@ -300,7 +306,7 @@ def index():
 		cryptoPass = key.encrypt(password.encode('utf-16le'), padmode=pyDes.PAD_PKCS5).encode('base64').rstrip()
 		username = escape(form.username.data.lower()).encode('ascii', 'xmlcharrefreplace')
 		logger.debug("Username:" + username)
-		logger.debug(render_template('authentication.xml', username=username, password=cryptoPass.encode('base64').rstrip()))
+#		logger.debug(render_template('authentication.xml', username=username, password=cryptoPass.encode('base64').rstrip()))
 		xmlResult = urllib2.urlopen(urllib2.Request(url="https://lsweb.autodesk.com/WWLAdminDS/WWLAdminDS.asmx", data=render_template('authentication.xml', username=username, password=cryptoPass), headers={"SOAPAction": "http://tempuri.org/GetUserAuth", "Content-Type": "text/xml; charset=utf-8"})).read()
 		logger.debug(xmlResult.decode("utf-8"))
 		result = re.search('<GetUserAuthResult>.*<ID_USER>(\d+)</ID_USER>.*<FIRSTNAME>([\w \'-]+)</FIRSTNAME>.*<LASTNAME>([\w \'-]+)</LASTNAME>.*</GetUserAuthResult>', xmlResult.decode("utf-8"), re.U)
