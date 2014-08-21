@@ -6,8 +6,9 @@
 # Created in 2013 by Alok Goyal
 #
 # Changelog
-# v3.1.5	Modified on 21 Aug 2014 by Ventsislav Zhechev
+# v3.1.6	Modified on 21 Aug 2014 by Ventsislav Zhechev
 # Fixed a bug where redicrects would point to the wrong URL.
+# Fixed a bug where a TBX for all languages and all products could not be exported.
 #
 # v3.1.5	Modified on 12 Aug 2014 by Ventsislav Zhechev
 # Modified to use aliases for staging and production MySQL servers.
@@ -715,7 +716,7 @@ def terminology():
 		prodID = request.args.get('prodID', '')
 		if not langID or langID == '0':
 			if not prodID or prodID == '0':
-				cursor.execute("select * from TermList where Approved = b'1' and IgnoreTerm = b'0' and order by LangCode3Ltr asc, Term asc, ProductName asc")
+				cursor.execute("select * from TermList where Approved = b'1' and IgnoreTerm = b'0' order by LangCode3Ltr asc, Term asc, ProductName asc")
 			else:
 				cursor.execute("select * from TermList where Approved = b'1' and IgnoreTerm = b'0' and ProductCode = (select ProductCode from Products where ID = %s) order by LangCode3Ltr asc, Term asc" % prodID)
 		elif not prodID or prodID == '0':
