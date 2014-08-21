@@ -168,7 +168,7 @@ function submitComment(evt) {
 					success: function(html) {
 						$(".submitWarning").fadeOut();
 						if ($(contentDiv).find(".commentRow").length <= 1) {
-							$(contentDiv).parent().parent().prevUntil('.trHover').prev().last().find('.showComments').replaceWith('<img src="http://ec2-50-16-68-84.compute-1.amazonaws.com:5000/static/images/balloons-box-icon-check.png" width="16" height="16" alt="Show Comments" title="Show Comments" class="toggleClick showComments" border="0" style="display: inline;">');
+							$(contentDiv).parent().parent().prevUntil('.trHover').prev().last().find('.showComments').replaceWith('<img src="static/images/balloons-box-icon-check.png" width="16" height="16" alt="Show Comments" title="Show Comments" class="toggleClick showComments" border="0" style="display: inline;">');
 							$(contentDiv).parent().parent().prevUntil('.trHover').prev().last().find('.showComments').click(toggleMultipart);
 						}
 						$(contentDiv).find(".newCommentRow").replaceWith(html);
@@ -226,7 +226,7 @@ function deleteComment(evt) {
 									success: function(text) {
 										if (parentTR.siblings().length === 0) {
 											$(contentDiv).slideToggle(400, function() {
-												$(".rowChildComments-"+termID).prevUntil(".trHover").prev().last().find('.showComments').replaceWith('<img src="http://ec2-50-16-68-84.compute-1.amazonaws.com:5000/static/images/balloons-box-icon.png" width="16" height="16" alt="Show Comments" title="Show Comments" class="toggleClick showComments" border="0" style="display: inline;">');
+												$(".rowChildComments-"+termID).prevUntil(".trHover").prev().last().find('.showComments').replaceWith('<img src="static/images/balloons-box-icon.png" width="16" height="16" alt="Show Comments" title="Show Comments" class="toggleClick showComments" border="0" style="display: inline;">');
 												$(".rowChildComments-"+termID).prevUntil('.trHover').prev().last().find('.showComments').click(toggleMultipart);
 												loadAuxData($(".rowChildComments-"+termID).prevUntil(".trHover").prev().last().find('.showComments'), contentDiv, termID);
 											});

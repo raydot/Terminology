@@ -7,6 +7,9 @@
 # Created by Ventsislav Zhechev in 2013
 #
 # Changelog
+# v1.0.1	Modified on 21 Aug 2014 by Ventsislav Zhechev
+# Turned off the use of CGIRootFix as it isn’t necessary anymore.
+#
 # v1.			Modified in 2013 by Ventsislav Zhechev
 # Original production version.
 #
@@ -23,6 +26,6 @@ from werkzeug.contrib.fixers import CGIRootFix
 from Terminology import Terminology as application
 
 
-application.wsgi_app = CGIRootFix(application.wsgi_app)
+#application.wsgi_app = CGIRootFix(application.wsgi_app)
 if __name__ == '__main__':
 	WSGIServer(application).run()

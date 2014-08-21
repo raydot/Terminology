@@ -6,6 +6,9 @@
 # Created in 2013 by Alok Goyal
 #
 # Changelog
+# v3.1.5	Modified on 21 Aug 2014 by Ventsislav Zhechev
+# Fixed a bug where redicrects would point to the wrong URL.
+#
 # v3.1.5	Modified on 12 Aug 2014 by Ventsislav Zhechev
 # Modified to use aliases for staging and production MySQL servers.
 #
@@ -444,11 +447,11 @@ def TermList():
 		prodID = request.args.get('prodID', '')
 		if not langID or langID == '0':
 			if not prodID or prodID == '0':
-				return redirect('/JobList.html')
+				return redirect('JobList.html')
 			else:
-				return redirect('/TermListProduct.html?productID=%s' % prodID)
+				return redirect('TermListProduct.html?productID=%s' % prodID)
 		elif not prodID or prodID == '0':
-			return redirect('/TermListLanguage.html?languageID=%s' % langID)
+			return redirect('TermListLanguage.html?languageID=%s' % langID)
 	
 	userID = 0
 	userFirstName = ""
@@ -535,7 +538,7 @@ def TermListLanguage():
 	if not languageID:
 		languageName = request.args.get('languageName', '')
 		if not languageName:
-			return redirect('/LanguageList.html')
+			return redirect('LanguageList.html')
 		cursor.execute("select ID from TargetLanguages where LangName = '%s' limit 1" % languageName)
 		languageID = cursor.fetchone()['ID']
 		
@@ -591,7 +594,7 @@ def TermListProduct():
 	if not productID:
 		productCode = request.args.get('productCode', '')
 		if not productCode:
-			return redirect('/ProductList.html')
+			return redirect('ProductList.html')
 		cursor.execute("select ID from Products where ProductCode = '%s' limit 1" % productCode)
 		productID = cursor.fetchone()['ID']
 	
@@ -648,7 +651,7 @@ def TermListContent():
 	if not contentTypeID:
 		contentType = request.args.get('contentType', '')
 		if not contentType:
-			return redirect('/ContentList.html')
+			return redirect('ContentList.html')
 		cursor.execute("select ID from ContentTypes where ContentType = '%s' limit 1" % contentType)
 		contentTypeID = cursor.fetchone()['ID']
 	
