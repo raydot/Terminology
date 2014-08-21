@@ -73,9 +73,10 @@ li {margin:0 0 5px 0; padding:0 0 0 5px;}
 /* Table styling */
 div .tabularContent {overflow-y:auto;}
 
+.viewTable {width: 1000px;}
 .viewTable {border-collapse: collapse; border: 1px solid #808080;}
 .viewTable th {padding: 0.5em;}
-.viewTable th[scope=col] {background-color: rgba(0, 171, 230, 0.30); border-bottom: 2px solid #808080;}
+.viewTable th[scope=col] {background-color: #B1E5F6; border-bottom: 2px solid #808080;}
 .viewTable th+th[scope=col] {border-left: 1px solid #3f3f3f;}
 .viewTable td+td[scope=row] {border-left: 1px dotted #3f3f3f;}
 .viewTable tr.approvedRow {opacity: .5;}
