@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Workspace
+   version = "1.0">
+   <FileRef
+      location = "group:__init__.py">
+   </FileRef>
+   <FileRef
+      location = "group:config.py">
+   </FileRef>
+   <FileRef
+      location = "group:Extractor.py">
+   </FileRef>
+   <FileRef
+      location = "group:forms.py">
+   </FileRef>
+   <FileRef
+      location = "group:Service.py">
+   </FileRef>
+   <Group
+      location = "group:static"
+      name = "static">
+      <FileRef
+         location = "group:base.js">
+      </FileRef>
+      <Group
+         location = "group:images"
+         name = "images">
+         <FileRef
+            location = "group:autodesk-logo-color-text-black-rgb-large.png">
+         </FileRef>
+         <FileRef
+            location = "group:background.jpg">
+         </FileRef>
+         <FileRef
+            location = "group:balloons-box-icon-check.png">
+         </FileRef>
+         <FileRef
+            location = "group:balloons-box-icon.png">
+         </FileRef>
+         <FileRef
+            location = "group:blank.png">
+         </FileRef>
+         <FileRef
+            location = "group:blue-document-insert-icon.png">
+         </FileRef>
+         <FileRef
+            location = "group:clock-history-icon-check.png">
+         </FileRef>
+         <FileRef
+            location = "group:clock-history-icon.png">
+         </FileRef>
+         <FileRef
+            location = "group:cross-icon.png">
+         </FileRef>
+         <FileRef
+            location = "group:loading1.gif">
+         </FileRef>
+         <FileRef
+            location = "group:minus-green-icon.png">
+         </FileRef>
+         <FileRef
+            location = "group:minus-icon.png">
+         </FileRef>
+         <FileRef
+            location = "group:plus-icon.png">
+         </FileRef>
+         <FileRef
+            location = "group:tick-icon.png">
+         </FileRef>
+         <FileRef
+            location = "group:tick-red-icon.png">
+         </FileRef>
+      </Group>
+      <FileRef
+         location = "group:jail.js">
+      </FileRef>
+      <Group
+         location = "group:jquery.confirm"
+         name = "jquery.confirm">
+         <FileRef
+            location = "group:body_bg.jpg">
+         </FileRef>
+         <FileRef
+            location = "group:buttons.png">
+         </FileRef>
+         <FileRef
+            location = "group:header_bg.jpg">
+         </FileRef>
+         <FileRef
+            location = "group:ie.png">
+         </FileRef>
+         <FileRef
+            location = "group:jquery.confirm.css">
+         </FileRef>
+         <FileRef
+            location = "group:jquery.confirm.js">
+         </FileRef>
+      </Group>
+      <FileRef
+         location = "group:multi-options.css">
+      </FileRef>
+      <FileRef
+         location = "group:table.js">
+      </FileRef>
+   </Group>
+   <Group
+      location = "group:templates"
+      name = "templates">
+      <FileRef
+         location = "group:ArchiveList.html">
+      </FileRef>
+      <FileRef
+         location = "group:authentication.xml">
+      </FileRef>
+      <FileRef
+         location = "group:Base.html">
+      </FileRef>
+      <FileRef
+         location = "group:CommentRow.html">
+      </FileRef>
+      <FileRef
+         location = "group:CommentsList.html">
+      </FileRef>
+      <FileRef
+         location = "group:ContentList.html">
+      </FileRef>
+      <FileRef
+         location = "group:ContextList.html">
+      </FileRef>
+      <FileRef
+         location = "group:index.html">
+      </FileRef>
+      <FileRef
+         location = "group:JobList.html">
+      </FileRef>
+      <FileRef
+         location = "group:LanguageList.html">
+      </FileRef>
+      <FileRef
+         location = "group:ProductList.html">
+      </FileRef>
+      <FileRef
+         location = "group:Sidebar.html">
+      </FileRef>
+      <FileRef
+         location = "group:terminology.tbx">
+      </FileRef>
+      <FileRef
+         location = "group:TermList.html">
+      </FileRef>
+      <FileRef
+         location = "group:TermListBase.html">
+      </FileRef>
+      <FileRef
+         location = "group:TermListContent.html">
+      </FileRef>
+      <FileRef
+         location = "group:TermListLanguage.html">
+      </FileRef>
+      <FileRef
+         location = "group:TermListProduct.html">
+      </FileRef>
+   </Group>
+   <FileRef
+      location = "group:Terminology_staging.fcgi">
+   </FileRef>
+   <FileRef
+      location = "group:Terminology.fcgi">
+   </FileRef>
+   <FileRef
+      location = "group:Terminology.wsgi">
+   </FileRef>
+   <FileRef
+      location = "group:TerminologyDatabaseStaging.txt">
+   </FileRef>
+</Workspace>
