@@ -54,7 +54,7 @@
 		<div style="margin-right: 200px">
 		<p><strong>Translation instructions</strong></p><p>Translate the full “term string” as it would need to be translated in at least one of the contexts on the right. Don’t skip words that don’t appear to be part of the term. French Example: “lists PObject items” ⇒ “liste les éléments PObject”<br/>The term strings are lowercased, as this is how they are used by the system. The proper case can be seen in the context examples. Skip terms that are obvious typos—we will not enforce translations for terms with typos.</p>
 		</div>
-		<div class="tabularContent"><table class="viewTable">
+		<div class="tabularContent"><table class="viewTable terms" style="display:none;">
 				<!--col width="51px"/>
 				<col width="53px"/>
 				<col/>
@@ -85,14 +85,18 @@
 						<th nowrap scope="col">Reviewed by</th>
 						<th nowrap scope="col">Approved</th>
 						<th nowrap scope="col">Approved by</th>
+                        <th style="display:none;"></th>
+                        <th style="display:none;"></th>
+                        <th style="display:none;"></th>
+                        <th style="display:none;"></th>
 					</tr>
 			</thead>
 			{% for term in terms %}
 				<tr class="{{ loop.cycle('oddRow', 'evenRow') }} trHover{% if term['Approved'] == '\x01' %} approvedRow{% endif %}" term-id="{{ term['TermID'] }}">
 					<td scope="row" align="center">
-						<div class="toggleImg"><img src="static/images/blank.png" data-src="static/images/clock-history-icon{% if term['HasArchive'] == 1 %}-check{% endif %}.png" width="16" height="16" alt="Show Translation History" title="Show Translation History" class="toggleClick showArchive lazy" border="0" style="display: inline;" /></div>
-						<div class="toggleImg"><img src="static/images/blank.png" data-src="static/images/blue-document-insert-icon.png" width="16" height="16" alt="Show Source Contexts" title="Show Source Contexts" class="toggleClick showContext lazy" border="0" style="display: inline;" /></div>
-						<div class="toggleImg"><img src="static/images/blank.png" data-src="static/images/balloons-box-icon{% if term['HasComments'] == 1 %}-check{% endif %}.png" width="16" height="16" alt="Show Comments" title="Show Comments" class="toggleClick showComments lazy" border="0" style="display: inline;" /></div>
+						<div class="toggleImg"><img src="static/images/clock-history-icon{% if term['HasArchive'] == 1 %}-check{% endif %}.png" width="16" height="16" alt="Show Translation History" title="Show Translation History" class="toggleClick showArchive lazy" border="0" style="display: inline;" /></div>
+						<div class="toggleImg"><img src="static/images/blue-document-insert-icon.png" width="16" height="16" alt="Show Source Contexts" title="Show Source Contexts" class="toggleClick showContext lazy" border="0" style="display: inline;" /></div>
+						<div class="toggleImg"><img src="static/images/balloons-box-icon{% if term['HasComments'] == 1 %}-check{% endif %}.png" width="16" height="16" alt="Show Comments" title="Show Comments" class="toggleClick showComments lazy" border="0" style="display: inline;" /></div>
 						<input type="hidden" value="{{ term['HasArchive'] }}"/>
 						<input type="hidden" value="{{ term['HasComments'] }}"/>
 					</td>
@@ -123,13 +127,19 @@
 						<input type="button" name="cancel" value="Cancel" class="termListButton cancelTranslationButton" form="translateForm-{{ term['TermID'] }}" />
 					</div>
 					</td>
-				</tr>
+                    {% for i in range(contentColumnCount+2) %}
+                        <td class="spacer"></td>
+                    {% endfor %}
+                </tr>
 				<tr class="{{ loop.cycle('oddRow', 'evenRow') }} rowChildArchive-{{ term['TermID'] }}" style="display: none;">
 					<td scope="row" colspan="{{ contentColumnCount }}">
 					<div class="toggle viewSubDiv" style="display: none;" id="loading-archive-{{ term['TermID'] }}">
 					<span>Loading…</span><img src="static/images/blank.png" data-src="static/images/loading1.gif" class="lazyLoading" alt="Loading…" width="13" height="13" /></div>
 					<div class="viewSubDiv" style="display: none;" id="archive-{{ term['TermID'] }}"></div>
 					</td>
+                    {% for i in range(contentColumnCount+2) %}
+                        <td class="spacer"></td>
+                    {% endfor %}
 				</tr>
 				<tr class="{{ loop.cycle('oddRow', 'evenRow') }} rowChildContext-{{ term['TermID'] }}" style="display: none;">
 					<td scope="row" colspan="{{ contentColumnCount }}">
@@ -137,6 +147,9 @@
 					<span>Loading…</span><img src="static/images/blank.png" data-src="static/images/loading1.gif" class="lazyLoading" alt="Loading…" width="13" height="13" /></div>
 					<div class="viewSubDiv" style="display: none;" id="context-{{ term['TermID'] }}"></div>
 					</td>
+                    {% for i in range(contentColumnCount+2) %}
+                        <td class="spacer"></td>
+                    {% endfor %}
 				</tr>
 				<tr class="{{ loop.cycle('oddRow', 'evenRow') }} rowChildComments-{{ term['TermID'] }}" style="display: none;">
 					<td scope="row" colspan="{{ contentColumnCount }}">
@@ -144,6 +157,9 @@
 					<span>Loading…</span><img src="static/images/blank.png" data-src="static/images/loading1.gif" class="lazyLoading" alt="Loading…" width="13" height="13" /></div>
 					<div class="viewSubDiv" style="display: none;" id="comments-{{ term['TermID'] }}" term-id="{{ term['TermID'] }}"></div>
 					</td>
+                    {% for i in range(contentColumnCount+2) %}
+                        <td class="spacer"></td>
+                    {% endfor %}
 				</tr>
 			{% endfor %}
 			</table>

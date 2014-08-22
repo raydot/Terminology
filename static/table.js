@@ -1,7 +1,9 @@
+/*
 $(function() { $('img.lazy').jail({
 	timeout: 0,
 	offset: 100,
 }) });
+ */
 $('.toggleClick') .click(toggleMultipart);
 $('.addCommentButton') .click(addComment);
 $('.submitCommentButton') .click(submitComment);

@@ -105,6 +105,12 @@
       <FileRef
          location = "group:floatTableHead.js">
       </FileRef>
+      <FileRef
+         location = "group:tablePaging.css">
+      </FileRef>
+      <FileRef
+         location = "group:tablePaging.js">
+      </FileRef>
    </Group>
    <Group
       location = "group:templates"

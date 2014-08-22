@@ -9,7 +9,7 @@
 		<h2>Term extraction jobs{% if language or product %} for {% endif %}{% if product %}{{ product }}{% endif %}{% if language and product %}, {% endif %}{% if language %}{{ language }}{% endif %}</h2>
 		{% if jobs %}
 		<p>Jobs, for which term extraction is still carried out in the background, are marked as ‘Pending’.<br/>Jobs, for which all translations have received final approval, are marked as ‘Completed’.</p>
-		<div class="tabularContent"><table class="viewTable">
+		<div class="tabularContent"><table class="viewTable" style="display:none;">
 			<thead>
 				<tr>
 					<th nowrap scope="col">Pending</th>
