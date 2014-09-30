@@ -1,5 +1,5 @@
 .DS_Store
-UserInterfaceState.xcuserstate
+*.xcuserstate
 
 *.py[cod]
 
