@@ -1,0 +1,9 @@
+.DS_Store
+UserInterfaceState.xcuserstate
+
+*.py[cod]
+
+*.class
+*.log
+
+auxiliaryData
