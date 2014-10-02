@@ -6,6 +6,9 @@
 # Created in 2012 by Petra Ribiczey
 #
 # Changelog
+# v3.6.2	Modified on 02 Oct 2014 by Ventsislav Zhechev
+# Fixed a bug where the set of original word tokens (new_content_orig_tok) was always empty.
+#
 # v3.6.1	Modified on 12 Aug 2014 by Ventsislav Zhechev
 # Modified to use aliases for staging and production Solr servers.
 #
@@ -252,7 +255,8 @@ def Getterms(content, lang, prods, returnJSON):
 		seg = seg.replace('\r\n','\n')# Collapsing new lines
 		seg = seg.replace('\n ','\n') # Clean-up the line endings—not sure if useful at all
 		new_content_orig += " " + seg
-		new_content_orig_tok.union(set(word_tok.tokenize(seg)))
+		for word in word_tok.tokenize(seg):
+			new_content_orig_tok.add(word)
 
 		seg = seg.replace('%','')
 		seg = seg.replace(".. ."," ...")
