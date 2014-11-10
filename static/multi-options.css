@@ -8,7 +8,7 @@ body {margin:0; padding:0; font:92% Tahoma,sans-serif; background:#fefefe url(im
 #wrap {width:1236px; text-align:left; margin-left: auto; margin-right: auto; position: relative;}
 
 /* Header */
-#header {width:1236px; height:200px; margin-top:20px; margin-left:20px;}
+#header {width:1236px; height:150px; margin-top:20px; margin-left:20px;}
 #headerimage {float:right; width:500px; height:84px; margin-top:20px; margin-left:20px; margin-right:20px; overflow:hidden; border:none;}
 #title {width:100%; text-align:center;}
 h1 {margin:0 auto; padding:0; font-size:2.4em; font-weight:700; letter-spacing:-1px; line-height:2.2em; text-shadow:#c0c0c0 2px 2px 8px;}
