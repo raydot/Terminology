@@ -1,11 +1,15 @@
 # -*- coding: utf-8 -*-
 #####################
 #
-# © 2012–2014 Autodesk Development Sàrl
+# © 2012–2015 Autodesk Development Sàrl
 #
 # Created in 2012 by Petra Ribiczey
 #
 # Changelog
+# v3.6.3	Modified on 12 Jan 2015 by Ventsislav Zhechev
+# Fixed a bug where terms, for which a source context could not be found, would still be returned to the client.
+# Modified to remove the complete candidate chunk if one of its words consists of a single character.
+#
 # v3.6.2	Modified on 02 Oct 2014 by Ventsislav Zhechev
 # Fixed a bug where the set of original word tokens (new_content_orig_tok) was always empty.
 #
@@ -431,22 +435,19 @@ def Getterms(content, lang, prods, returnJSON):
 		w.strip()
 	
 	# remove one letter words from the chunk units (eg. remains of placeholders)
-		newWord = []
+	# switched to removing the whole chunmk if a one-letter word was found
 		noWordFound = False
 		for word in word_tok.tokenize(w):
-			if len(word) > 1:
-				if word in nowords:
-					noWordFound = True
-					break
-				newWord.append(word)
+			if word in nowords or len(word) == 1:
+				noWordFound = True
+				break
 		if not noWordFound:
-			newWord = " ".join(newWord)
 			for mark in not_needed:
-				if mark in newWord:
+				if mark in w:
 					noWordFound = True
 					break
 			if not noWordFound:
-				tempSet.add(newWord)
+				tempSet.add(w)
 	new_chunks = list(tempSet)
   
 
@@ -595,6 +596,10 @@ def Getterms(content, lang, prods, returnJSON):
 
 	for term in new_words_and_compounds_in_product:
 		contexts = [con for con in new_content if term.lower() in con.lower()]
+		# Skip any terms that cannot be found in the original source. We cannot provide terms with no context to translators.
+		if len(contexts) == 0:
+			continue
+			Service.logger.error(u"Could not find original context for term %s!" % term)
 		if QueryNeXLTAllProds(term.lower(), lang) == 0:
 			terms.append([term, "Corpus", contexts, len(contexts), len(term)])
 		else:
@@ -602,14 +607,14 @@ def Getterms(content, lang, prods, returnJSON):
 				
 
 
-	# Sort final term list and create json format
-	terms = sorted(terms, key=itemgetter(1,0), reverse=True)
-	
 	if __debug_on__:
 		Service.logger.debug("Finished NeXLT calls with %s new terms remaining." % len(terms))
 
 		 
 	if returnJSON:
+		# Sort final term list and create json format
+		terms = sorted(terms, key=itemgetter(1,0), reverse=True)
+	
 		terms_for_json = {}
 
 		for listitem in terms:
@@ -627,9 +632,11 @@ def Getterms(content, lang, prods, returnJSON):
 		return terms_for_json
 		
 	else:
-#		import pprint
-#		pprint.PrettyPrinter(indent=2).pprint(final_terms)
 		if __debug_on__:
 			Service.logger.debug("Finished final processing.")
+			Service.logger.debug("Extracted terms:")
+#			import pprint
+#			for term in terms:
+#				Service.logger.debug("\tterm: %s" % pprint.saferepr(term))
 
 		return terms
