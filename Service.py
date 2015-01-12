@@ -1,11 +1,14 @@
 # -*- coding: utf-8 -*-
 #####################
 #
-# © 2013–2014 Autodesk Development Sàrl
+# © 2013–2015 Autodesk Development Sàrl
 #
 # Created in 2013 by Alok Goyal
 #
 # Changelog
+# v3.1.7	Modified on 12 Jan 2015 by Ventsislav Zhechev
+# Small modifications to debug output.
+#
 # v3.1.6	Modified on 21 Aug 2014 by Ventsislav Zhechev
 # Fixed a bug where redicrects would point to the wrong URL.
 # Fixed a bug where a TBX for all languages and all products could not be exported.
@@ -135,7 +138,10 @@ class termHarvestThread (threading.Thread):
 				terms = Extractor.Getterms(data, language[1], products[1], 0)
 				conn = connectToDB()
 				cursor = conn.cursor()
+#				termCounter = 0
 				for term in terms:
+#					termCounter = termCounter + 1
+#					logger.debug(u"inserting source term %s %s, %s" % (termCounter, term[0], term[1]))
 					sql = "insert into SourceTerms(Term) values ('%s') on duplicate key update ID=last_insert_id(ID)" % conn.escape_string(term[0])
 # 					logger.debug("SQL: %s\n" % sql)
 					cursor.execute(sql)
@@ -153,10 +159,12 @@ class termHarvestThread (threading.Thread):
 #					logger.debug("SQL: %s\n" % sql)
 					cursor.execute(sql)
 					
+				logger.debug(u"Finished inserting terms, pending DB commit…")
 				#finished processing job
 				cursor.execute("update PendingJobs set Pending=0, DateProcessed=CURRENT_TIMESTAMP where ID=%s limit 1", jobID)
 				conn.commit()
 				conn.close()
+				logger.debug(u"DB commit done!")
 				jobQueue.task_done()
 			except Queue.Empty:
 				pass
@@ -249,9 +257,7 @@ def termharvest():
 		return (respStr,respCode)
 	else:
 		logger.debug("Will check against following product codes:")
-		for p in prods[1]:
-			logger.debug(p + " ")
-		logger.debug("\n")
+		logger.debug(" ".join(prods[1]))
 			
 	logger.debug((u"Checking if the requested language is supported… (" + lang + ")").encode('utf-8'))
 	language = isSupportedLanguage(lang, conn)
@@ -312,7 +318,7 @@ def index():
 		logger.debug("Username:" + username)
 #		logger.debug(render_template('authentication.xml', username=username, password=cryptoPass.encode('base64').rstrip()))
 		xmlResult = urllib2.urlopen(urllib2.Request(url="https://lsweb.autodesk.com/WWLAdminDS/WWLAdminDS.asmx", data=render_template('authentication.xml', username=username, password=cryptoPass), headers={"SOAPAction": "http://tempuri.org/GetUserAuth", "Content-Type": "text/xml; charset=utf-8"})).read()
-		logger.debug(xmlResult.decode("utf-8"))
+# 		logger.debug(xmlResult.decode("utf-8"))
 		result = re.search('<GetUserAuthResult>.*<ID_USER>(\d+)</ID_USER>.*<FIRSTNAME>([\w \'-]+)</FIRSTNAME>.*<LASTNAME>([\w \'-]+)</LASTNAME>.*</GetUserAuthResult>', xmlResult.decode("utf-8"), re.U)
 		if result:
 			userID = int(result.group(1))
