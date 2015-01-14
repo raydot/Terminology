@@ -6,6 +6,9 @@
 # Created in 2013 by Alok Goyal
 #
 # Changelog
+# v3.2		Modified on 14 Jan 2015 by Ventsislav Zhechev
+# The servide will now send term contexts to the MT Info Service for translation with the current MT engines.
+#
 # v3.1.7	Modified on 12 Jan 2015 by Ventsislav Zhechev
 # Small modifications to debug output.
 #
@@ -52,7 +55,7 @@
 #
 #####################
 
-isStaging = True
+isStaging = False
 
 dbName = "Terminology"
 if (isStaging):
@@ -86,6 +89,9 @@ import urllib2, pyDes
 from pyDes import triple_des
 from datetime import timedelta
 import traceback
+
+import socket
+import select
 
 
 import threading
@@ -136,6 +142,17 @@ class termHarvestThread (threading.Thread):
 				logger.debug((u"Processing a job…\nContentID: " + str(contentID) + "; ProductID: " + str(products[0]) + "; LanguageID: " + str(language[0])).encode('utf-8'))
 				#process job
 				terms = Extractor.Getterms(data, language[1], products[1], 0)
+				
+				#Machine translation of source contexts
+				logger.debug("Processing source contexts through MT")
+				contextSet = set()
+				#Collect all contexts in a set, so that we don’t translate duplicates
+				for term in terms:
+					contextSet.update(term[2])
+				logger.debug("Found %s contexts for translation" % len(contextSet))
+				contextDict = MT(contextSet, language[2])
+				
+				
 				conn = connectToDB()
 				cursor = conn.cursor()
 #				termCounter = 0
@@ -152,9 +169,12 @@ class termHarvestThread (threading.Thread):
 					cursor.execute(sql)
 					cursor.execute("select last_insert_id()")
 					termTranslationID, = cursor.fetchone()
-					sql = "insert into TermContexts(TermTranslationID, ContentTypeID, SourceContext) values "
+					sql = "insert into TermContexts(TermTranslationID, ContentTypeID, SourceContext, MTofContext) values "
 					for context in term[2]:
-						sql += "(%s, %s, '%s'), " % (termTranslationID, contentID, conn.escape_string(context))
+						if contextDict[context] == "":
+							sql += "(%s, %s, '%s', null), " % (termTranslationID, contentID, conn.escape_string(context))
+						else:
+							sql += "(%s, %s, '%s', '%s'), " % (termTranslationID, contentID, conn.escape_string(context), conn.escape_string(contextDict[context]))
 					sql = sql[:-2] + " on duplicate key update LastUpdate=NULL, ContentTypeID=selectContentTypeID(ContentTypeID, %s)" % (contentID)
 #					logger.debug("SQL: %s\n" % sql)
 					cursor.execute(sql)
@@ -169,6 +189,111 @@ class termHarvestThread (threading.Thread):
 			except Queue.Empty:
 				pass
 		logger.debug("Exiting thread " + str(self.threadID))
+
+def MT(content, language):
+	if len(content) == 0:
+		return {}
+	contentList = list(content)
+
+	mt_socket = None
+	MTError = False
+	try:
+		mt_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+		mt_socket.settimeout(6000)
+		mt_socket.connect(('10.35.136.43', 2000))
+	except Exception, e:
+		logger.exception('Could not connect to 10.35.136.43:2000\n"%s"' % e)
+		try:
+			mt_socket.connect(('10.35.136.43', 2001))
+		except Exception, e:
+			logger.exception('Could not connect to 10.35.136.43:2001\n"%s"' % e)
+			MTError = True
+
+	if MTError:
+		emptyMT = [""] * len(contentList)
+		return dict(zip(contentList, emptyMT))
+
+	translated = []
+	try:
+		header = "{targetLanguage => " + language +", translate => " + str(len(contentList)) + "}"
+		#	header = "{targetLanguage => " + language +", translate => " + str(len(contentList)) +", product => " + str(product_name) +"}"
+		logger.debug("MT request header:\n%s" % header)
+		
+		send = None
+		receive = None
+		try:
+			send = mt_socket.makefile('w', 0)  # to [w]rite , unbuffered
+			try:
+				receive = mt_socket.makefile('r', 0)  # to [r]ead , unbuffered
+			except:
+				send.close()
+				raise
+				
+			# Write strings to MT Info Service
+			try:
+				send.write(header.encode('utf-8') + "\n")
+				for string in contentList:
+					send.write(string.encode('utf-8') + "\n")
+				
+				logger.info("All strings written to: %s:%s" % mt_socket.getpeername())            
+			except Exception, e:
+				logger.debug(traceback.format_exc())
+				raise e
+					
+			# Read translations from MT Info Service
+			try:
+				ready = select.select([mt_socket], [], [], 300)
+				if ready[0]:
+					responseHeader = receive.readline().decode('utf-8')
+					logger.debug("MT response header:\n%s" % responseHeader)
+				else:
+					logger.critical("MT Info Service read timeout!")
+					raise Exception
+				
+				MTError = responseHeader[:1] == u""
+				for i in range(len(contentList)):
+					if MTError:
+						translated.append("")
+					else:
+						ready = select.select([mt_socket], [], [], 300)
+						if ready[0]:
+							s = receive.readline().decode('utf-8')
+						else:
+							logger.critical("MT Info Service read timeout!")
+							raise Exception
+						if s[:1] == u"":
+							MTError = True
+							translated.append("")
+						else:
+							translated.append(s.rstrip('\n'))
+						
+			except Exception, e:
+				logger.debug(traceback.format_exc())
+				raise e
+
+			logger.info("All Strings received from MT server (%s:%s)" % mt_socket.getpeername())
+		except Exception, e:
+			logger.fatal(("EXCEPTION WHILE TRANSLATING (%s:%s) " % mt_socket.getpeername()) + "%s" % e)
+			logger.exception(e)
+		finally:
+			send.close()
+			receive.close()
+				
+	except:
+		MTError = True
+	finally:
+		logger.info(u"Closing MT server socket…")
+		try:
+			mt_socket.close()
+		except Exception, e:
+			MTError = True
+			logger.critical(e)
+
+	if MTError:
+		emptyMT = [""] * len(contentList)
+		return dict(zip(contentList, emptyMT))
+	else:
+		return dict(zip(contentList, translated))
 				
 def isSupportedContent(content, conn):
 	if content == "Both":
@@ -191,10 +316,10 @@ def isSupportedProduct(prod, conn):
 
 def isSupportedLanguage(lang, conn):
 	cursor = conn.cursor()
-	cursor.execute("select ID, LangCode3Ltr from TargetLanguages where LangCode2Ltr = '" + lang + "' limit 1")
+	cursor.execute("select ID, LangCode3Ltr, LangCode2Ltr from TargetLanguages where LangCode2Ltr = '" + lang + "' limit 1")
 	result = cursor.fetchone()
 	if not result:
-		cursor.execute("select ID, LangCode3Ltr from TargetLanguages where LangCode3Ltr = '" + lang + "' limit 1")
+		cursor.execute("select ID, LangCode3Ltr, LangCode2Ltr from TargetLanguages where LangCode3Ltr = '" + lang + "' limit 1")
 		result = cursor.fetchone()
 		if not result:
 			return None
