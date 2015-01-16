@@ -6,6 +6,9 @@
 # Created in 2013 by Alok Goyal
 #
 # Changelog
+# v3.2.1	Modified on 16 Jan 2015 by Ventsislav Zhechev
+# Fixed a bug with the exception handling during MT processing.
+#
 # v3.2		Modified on 14 Jan 2015 by Ventsislav Zhechev
 # The servide will now send term contexts to the MT Info Service for translation with the current MT engines.
 #
@@ -164,7 +167,7 @@ class termHarvestThread (threading.Thread):
 					cursor.execute(sql)
 					cursor.execute("select last_insert_id()")
 					sourceTermID, = cursor.fetchone()
-					sql = "insert into TermTranslations(JobID, SourceTermID, LanguageID, ProductID, GlossID, ContentTypeID, NewTo, DateRequested) values (%s, %s, %s, %s, %s, %s, '%s', NULL) on duplicate key update ID=last_insert_id(ID), DateUpdated=CURRENT_TIMESTAMP, ContentTypeID=selectContentTypeID(ContentTypeID, %s)" % (jobID, sourceTermID, language[0], products[0][0], products[0][1], contentID, term[1], contentID)
+					sql = "insert into TermTranslations(JobID, SourceTermID, LanguageID, ProductID, GlossID, ContentTypeID, NewTo, DateRequested) values (%s, %s, %s, %s, %s, %s, '%s', NULL) on duplicate key update ID=last_insert_id(ID), DateUpdated=CURRENT_TIMESTAMP, ContentTypeID=selectContentTypeID(ContentTypeID, %s)" % (jobID, sourceTermID, language[0], products[0][0], products[0][1], contentID, conn.escape_string(term[1]), contentID)
 #					logger.debug("SQL: %s\n" % sql)
 					cursor.execute(sql)
 					cursor.execute("select last_insert_id()")
@@ -255,7 +258,7 @@ def MT(content, language):
 					if MTError:
 						translated.append("")
 					else:
-						ready = select.select([mt_socket], [], [], 300)
+						ready = select.select([mt_socket], [], [], 600)
 						if ready[0]:
 							s = receive.readline().decode('utf-8')
 						else:
@@ -275,11 +278,13 @@ def MT(content, language):
 		except Exception, e:
 			logger.fatal(("EXCEPTION WHILE TRANSLATING (%s:%s) " % mt_socket.getpeername()) + "%s" % e)
 			logger.exception(e)
+			MTError = True
 		finally:
 			send.close()
 			receive.close()
 				
 	except:
+		logger.debug(traceback.format_exc())
 		MTError = True
 	finally:
 		logger.info(u"Closing MT server socket…")
@@ -290,9 +295,11 @@ def MT(content, language):
 			logger.critical(e)
 
 	if MTError:
+		logger.debug("We have an MT error!")
 		emptyMT = [""] * len(contentList)
 		return dict(zip(contentList, emptyMT))
 	else:
+		logger.debug("MT went fine")
 		return dict(zip(contentList, translated))
 				
 def isSupportedContent(content, conn):
