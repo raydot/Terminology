@@ -1,0 +1,44 @@
+{% extends "TermListBase.html" %}
+{% block title %}Job List{% endblock %}
+{% block currentJob %}{% endblock currentJob %}
+{% block sidebarLanguages %}{{ super() }}{% endblock sidebarLanguages %}
+{% block sidebarProducts %}{{ super() }}{% endblock sidebarProducts %}
+{% block sidebarJobs %}{% endblock sidebarJobs %}
+{% block contentTypeList %}{{ super() }}{% endblock contentTypeList %}
+{% block content %}
+		<h2>Term extraction jobs{% if language or product %} for {% endif %}{% if product %}{{ product }}{% endif %}{% if language and product %}, {% endif %}{% if language %}{{ language }}{% endif %}</h2>
+		{% if jobs %}
+		<p>Jobs, for which term extraction is still carried out in the background, are marked as ‘Pending’.<br/>Jobs, for which all translations have received final approval, are marked as ‘Completed’.</p>
+		<div class="tabularContent"><table class="viewTable" style="display:none;">
+			<thead>
+				<tr>
+					<th nowrap scope="col">Pending</th>
+						<th nowrap scope="col">Completed</th>
+						<th nowrap scope="col" width="75px">Product<br/>Code</th>
+						<th nowrap scope="col" width="150px">Product Name</th>
+						<th nowrap scope="col">Target Language</th>
+						<th nowrap scope="col">Content Type</th>
+						<th nowrap scope="col" width="75px">Date<br/>Posted</th>
+						<th nowrap scope="col">Date<br/>Processed</th>
+						<th nowrap scope="col">Terms<br/>Pending</th>
+					</tr>
+			</thead>
+			{% for job in jobs %}
+				<tr class="{{ loop.cycle('oddRow', 'evenRow') }} trHover clickRow" onclick="window.open('TermList.html?jobID={{ job['JobID'] }}', '_self');">
+					<td scope="row" align="center" class="{% if job['Pending'] == '\x00' %}greenCell{% else %}redCell{% endif %}">{% if job['Pending'] == '\x01' %}yes{% else %}no{% endif %}</td>
+					<td scope="row" align="center" class="{% if job['Completed'] == 1 %}greenCell{% else %}redCell{% endif %}">{% if job['Completed'] == 1 %}yes{% else %}no{% endif %}</td>
+					<td scope="row" align="center">{{ job['ProductCode'] }}</td>
+					<td scope="row">{{ job['ProductName'] }}</td>
+					<td scope="row" align="center">{{ job['LangName'] }}</td>
+					<td scope="row" align="center">{{ job['ContentType'] }}</td>
+					<td scope="row" align="center">{{ job['DatePosted'] }}</td>
+					<td scope="row" align="center">{% if job['DateProcessed'] %}{{ job['DateProcessed'] }}{% else %}processing…{% endif %}</td>
+					<td scope="row" align="center" class="{% if job['Completed'] == 1 %}greenCell{% else %}redCell{% endif %}">{{ job['TermsPending'] }}</td>
+				</tr>
+			{% endfor %}
+			</table></div>
+			<script src="static/pagerScript.js"></script>
+		{% else %}
+		<p>No jobs available in the system at present.</p>
+		{% endif %}
+{% endblock content %}

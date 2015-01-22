@@ -1,0 +1,16 @@
+						<table class="viewSubTable">
+							<thead>
+								<tr>
+									<th scope="col" width="300px">Source Context</th>
+									<th scope="col" width="300px">Machine Translation of Context</th>
+									<th scope="col" width="90px">Content Type</th>
+								</tr>
+							</thead>
+							{% for context in contexts %}
+								<tr class="{{ loop.cycle('oddRow', 'evenRow') }}">
+									<td scope="row">{{ context['SourceContext'] }}</td>
+									<td scope="row">{{ context['MTofContext'] }}</td>
+									<td scope="row" align="center">{{ context['ContentType'] }}</td>
+								</tr>
+							{% endfor %}
+						</table>

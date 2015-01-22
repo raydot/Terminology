@@ -1,0 +1,249 @@
+/*
+Original design: Multi Options (v1.2 - Sep 12, 2012) - A free xhtml/css website template by Andreas Viklund.
+For more information, see http://andreasviklund.com/templates/multi-options/
+*/
+
+/* Main containers */
+body {margin:0; padding:0; font:92% Tahoma,sans-serif; background:#fefefe url(images/background.jpg) top left repeat-x; color:#555; text-align:center; line-height:1.6em;}
+#wrap {width:1236px; text-align:left; margin-left: auto; margin-right: auto; position: relative;}
+
+/* Header */
+#header {width:1236px; height:150px; margin-top:20px; margin-left:20px;}
+#headerimage {float:right; width:500px; height:84px; margin-top:20px; margin-left:20px; margin-right:20px; overflow:hidden; border:none;}
+#title {width:100%; text-align:center;}
+h1 {margin:0 auto; padding:0; font-size:2.4em; font-weight:700; letter-spacing:-1px; line-height:2.2em; text-shadow:#c0c0c0 2px 2px 8px;}
+h1 a {font-weight:700; text-decoration:none;}
+h1 a:hover {color:#3f3f3f; text-decoration:none;}
+.slogan {color:#595959; font-size:1.4em; margin:0 0 15px 0; padding:0; text-shadow:#c0c0c0 2px 2px 8px;}
+
+/* HTML Tags */
+a {font-weight:400;}
+a:hover {color:#3f3f3f !important;}
+a img {border:0;}
+h2 {clear:left; margin:0 200px 12px 0; padding:0 0 8px; font-size:1.8em; font-weight:700; border-bottom:1px solid #d9d9d9; text-shadow:#c0c0c0 2px 2px 8px;}
+h3 {clear:left; font-size:1.4em; font-weight:700; margin:0 0 10px 0; padding:2px 0; border-bottom:1px solid #d9d9d9; text-shadow:#c0c0c0 2px 2px 6px;}
+p {margin:0 0 15px 0;}
+ul {margin:0 0 15px 20px; padding:0;}
+li {margin:0 0 5px 0; padding:0 0 0 5px;}
+
+/* Sidebar */
+#sidebar {width:170px; margin:0; padding:0; color:#555; z-index: 2; position: absolute; right: 0; background: rgba(255, 255, 255, 0.85)}
+#sidebar h2 {font-size:1.5em; padding-bottom:5px; border-bottom:1px solid #d9d9d9; margin:15px 0 10px;}
+#sidebar ul {list-style:none; margin:0 0 15px 0;}
+#sidebar li {padding:0; margin:0;}
+#sidebar ul.sidemenu {width:170px; padding:0; margin:0; border-top:1px solid #d9d9d9;}
+#sidebar ul.sidemenu li a {display:block; text-decoration:none; padding:7px 0 7px 15px; margin:0; font-size:1.1em; border-bottom: 1px solid #d9d9d9; font-weight:700; text-shadow:#d9d9d9 2px 2px 4px;}
+#sidebar ul.sidemenu li a:hover {color:#3f3f3f; text-decoration:none; border-bottom: 1px solid #d9d9d9;}
+#sidebar ul.sidemenu li a.active {color:#333;}
+#sidebar ul.sidemenu ul {width:150px; padding:0; margin:0 0 0 20px;}
+#sidebar ul.sidemenu ul li a {padding:2px 0 2px 15px; margin:0; font-size:0.9em; font-weight:400;}
+#sidebar div.userDetails {padding-bottom: 5px;}
+#sidebar div.userDetails a {text-decoration: none;}
+
+
+/* Content area */
+#content {margin:20px 275px 15px 20px; width:100%; z-index: 0;}
+.sidebarContent {display: none;}
+
+/* Footer */
+#footer{font-size:0.9em; clear:both; width:1236px; line-height:1.4em; color:#808080; font-weight:400; margin-bottom:10px; margin-top: 100px;}
+#footer a {color:#808080; font-weight:400; text-decoration:none; border-bottom: 1px dotted #a6a6a6;}
+
+/* Image alignment classes */
+#content img.alignleft {display:inline; float:left; margin:5px 15px 5px 0;}
+#content img.alignright {float:right; margin:5px 0 5px 15px;}
+#content img.aligncenter {display:block; margin:10px auto;}
+#content img.border {border:1px solid #c0c0c0;}
+
+/* Various classes */
+.centered {text-align:center;}
+.hide {display:none;}
+.clear {clear:both; width:1236px; visibility:hidden;}
+
+/* Font options */
+.helvetica {font:84% Helvetica,sans-serif;}
+.verdana {font:84% Verdana,sans-serif;}
+.arial {font:84% Arial,sans-serif;}
+.courier {font:84% Courier,monospace;}
+
+/* Color options */
+.blue h1, .blue h1 a, .blue h2, .blue h3 {color:#1b58a8;}
+.blue a, .blue ul.sidemenu li a, .blue ul.sidemenu li a.active {color:#007272;}
+
+/* Table styling */
+div .tabularContent {overflow-y:auto;}
+
+.viewTable {width: 1000px;}
+.viewTable {border-collapse: collapse; border: 1px solid #808080;}
+.viewTable th {padding: 0.5em;}
+.viewTable th[scope=col] {background-color: #B1E5F6; border-bottom: 2px solid #808080;}
+.viewTable th+th[scope=col] {border-left: 1px solid #3f3f3f;}
+.viewTable td+td[scope=row] {border-left: 1px dotted #3f3f3f;}
+.viewTable tr.approvedRow {opacity: .5;}
+.viewTable tr.evenRow td {background-color: rgba(50, 188, 173, 0.15);}
+.viewTable tbody tr.trHover:hover td { background-color: rgba(135, 188, 64, 0.30);}
+.translateTermToggle, .clickRow {cursor: pointer;}
+.translationField {
+	width: 200px;
+	border: none;
+	background: transparent;
+	padding: 3px;
+}
+
+.greenCell {color: #87bc40;}
+.redCell {color: #ff3300;}
+
+.viewSubTable {border-collapse: collapse; border: 0px;}
+.viewSubTable th {padding: 0.1em;}
+.viewSubTable th[scope=col] {background-color: rgba(0, 114, 114, 0.30); border-bottom: 1px dashed #808080;}
+.viewSubTable th+th[scope=col] {border-left: 1px solid #3f3f3f;}
+.viewSubTable td+td[scope=row] {border-left: 1px dotted #3f3f3f;}
+.viewSubTable tr.oddRow td {background-color: transparent;}
+.viewSubTable tr.evenRow td {background-color: rgba(50, 188, 173, 0.15);}
+/* .viewSubTable td {width: min-intrinsic;} */
+
+.commentsTable {border-collapse: separate !important; border-spacing: 0px 5px !important}
+.commentRow > td {padding: 3px 10px; border: 0px !important}
+.evenRow.commentRow > td {background-color: transparent !important}
+.oddRow.commentRow > td {background-color: transparent !important}
+.evenRow.commentRow > td:first-child {background-color: rgba(255, 204, 0, 0.50) !important}
+.oddRow.commentRow > td:first-child {background-color: rgba(135, 188, 64, 0.50) !important}
+.commentRow > td:first-child {border-radius: 20px 20px 20px 20px}
+.newCommentRow {display: none; }
+.newCommentRow >td {padding: 4px 4px 1px 4px; }
+.newCommentRow textarea {width: 474px; height: 27px; padding: 5px 8px; border-radius: 15px; border: 0px; background-color: transparent; box-shadow: inset 1px 1px 5px 0px #a6a6a6;}
+.commentInputArea {margin-left: 6px}
+
+/* Form styling */
+.loginForm {margin: 15px 0 0 0;}
+.loginForm p {padding: 0 0 4px 0;}
+
+.loginForm span { 
+  float: left; 
+  width: 100px; 
+  text-align: left;
+  padding-top: 5px;
+}
+
+.loginForm input, .loginForm textarea { 
+  padding: 3px; 
+  width: 200px; 
+  border: 1px solid #E5E5DB; 
+  background: #FFF; 
+  color: #47433F;
+  border-radius: 7px;
+}
+
+input[type="button"], input[type="submit"] {
+  border: 0; 
+  height: 22px;
+  padding: 2px 0 3px 0;
+  cursor: pointer; 
+  background: #3092B6;
+  color: #FFF;
+}
+
+.termListButton {
+  width: 100px; 
+  margin-top: 2px;
+  border-radius: 10px;
+}
+
+.loginForm .submit { 
+  width: 66px; 
+  margin-left: 93px; 
+  border-radius: 7px;
+}
+
+.loginForm textarea, .loginForm select { width: 300px;}
+.loginForm .checkbox { margin: 4px 0; padding: 0; width: 14px; border: 0; background: none;}
+
+/* Toggle image styling */
+div .toggleImg, .deleteComment {position: relative; width: 16px; height: 16px; float: left; cursor: pointer;}
+.viewTable .toggleImg-th {padding: 1px;}
+.viewTable .toggleImg-span {margin-left: 48px;}
+div .toggle {display: none; border-top: 1px dotted #a6a6a6; border-bottom: 1px dotted #3f3f3f; padding-top: 1px; padding-bottom: 3px;}
+div .viewSubDiv {padding-left: 52px;}
+
+
+.termCheckbox input[type=checkbox] { display: none; }
+
+.termCheckbox {
+	font: 70% Helvetica,sans-serif;
+	width: 48px;
+	height: 20px;
+	background: #ffffff;
+	cursor: pointer;
+
+	-webkit-border-radius: 50px;
+	-moz-border-radius: 50px;
+	border-radius: 50px;
+	position: relative;
+
+	-webkit-box-shadow: inset 0px 1px 1px rgba(0,0,0,0.5), 0px 1px 0px rgba(255,255,255,0.2);
+	-moz-box-shadow: inset 0px 1px 1px rgba(0,0,0,0.5), 0px 1px 0px rgba(255,255,255,0.2);
+	box-shadow: inset 0px 1px 1px rgba(0,0,0,0.5), 0px 1px 0px rgba(255,255,255,0.2);
+}
+
+.termCheckbox:after {
+	content: 'NO';
+	font: 70%/20px Helvetica,sans-serif;
+	color: #ff3300;
+	position: absolute;
+	top: 1px;
+	right: 6px;
+	z-index: 0;
+	font-weight: bold;
+}
+.termCheckbox.inverseColour:after {
+	color: #87bc40;
+}
+
+.termCheckbox:before {
+	content: 'YES';
+	font: 70%/20px Helvetica,sans-serif;
+	color: #87bc40;
+	position: absolute;
+	top: 1px;
+	left: 5px;
+	z-index: 0;
+	font-weight: bold;
+}
+.termCheckbox.inverseColour:before {
+	color: #ff3300;
+}
+
+.termCheckbox label {
+	display: block;
+	width: 19px;
+	height: 13px;
+
+	-webkit-border-radius: 50px;
+	-moz-border-radius: 50px;
+	border-radius: 50px;
+
+	-webkit-transition: all .4s ease;
+	-moz-transition: all .4s ease;
+	-o-transition: all .4s ease;
+	-ms-transition: all .4s ease;
+	transition: all .4s ease;
+	cursor: pointer;
+	position: absolute;
+	top: 3px;
+	left: 3px;
+	z-index: 1;
+
+
+	background: #ffffff;
+	background: -webkit-linear-gradient(top, #ffffff 0%, #d9d9d9 40%, #a6a6a6 100%);
+	background: -moz-linear-gradient(top, #ffffff 0%, #d9d9d9 40%, #a6a6a6 100%);
+	background: -o-linear-gradient(top, #ffffff 0%, #d9d9d9 40%, #a6a6a6 100%);
+	background: -ms-linear-gradient(top, #ffffff 0%, #d9d9d9 40%, #a6a6a6 100%);
+	background: linear-gradient(top, #ffffff 0%, #d9d9d9 40%, #a6a6a6 100%);
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#a6a6a6', GradientType=0 );
+	border: 1px solid rgb(191, 191, 191);
+}
+
+.termCheckbox input[type=checkbox]:checked + label {
+	left: 25px;
+}

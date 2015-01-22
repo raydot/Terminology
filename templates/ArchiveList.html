@@ -1,0 +1,20 @@
+						{% if archive %}
+						<table class="viewSubTable">
+							<thead>
+								<tr>
+									<th scope="col" width="520px">Term Translation</th>
+									<th scope="col">Date Translated</th>
+									<th scope="col">Translated By</th>
+								</tr>
+							</thead>
+							{% for translation in archive %}
+								<tr class="{{ loop.cycle('oddRow', 'evenRow') }}">
+									<td scope="row" nowrap>{{ translation['TermTranslation'] }}</td>
+									<td scope="row" align="center">{{ translation['DateTranslated'] }}</td>
+									<td scope="row" align="center">{{ translation['TranslateUserID'] }}</td>
+								</tr>
+							{% endfor %}
+						</table>
+						{% else %}
+						No previous translations available for this term.
+						{% endif %}

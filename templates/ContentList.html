@@ -1,0 +1,27 @@
+{% extends "TermListBase.html" %}
+{% block title %}Term List{% endblock %}
+{% block currentJob %}{% endblock currentJob %}
+{% block sidebarLanguages %}{{ super() }}{% endblock sidebarLanguages %}
+{% block sidebarProducts %}{{ super() }}{% endblock sidebarProducts %}
+{% block sidebarJobs %}{{ super() }}{% endblock sidebarJobs %}
+{% block contentTypeList %}{% endblock contentTypeList %}
+{% block content %}
+		<h2>Term extraction statistics by content type</h2>
+		<p>The table lists separately terms extracted from software strings and documentation. Some terms might have been extracted from both types of content, so the total number of pending terms shown here might exceed the total number of terms in the system.</p>
+		<div class="tabularContent"><table class="viewTable">
+			<thead>
+				<tr>
+					<th nowrap scope="col">Content Type</th>
+						<th nowrap scope="col">Jobs Pending</th>
+						<th nowrap scope="col">Terms Pending</th>
+					</tr>
+			</thead>
+			{% for contentType in contentTypes %}
+				<tr class="{{ loop.cycle('oddRow', 'evenRow') }} trHover clickRow" onclick="window.open('TermListContent.html?contentTypeID={{ contentType['ContentTypeID'] }}', '_self');">
+					<td scope="row" align="center">{{ contentType['ContentType'] }}</td>
+					<td scope="row" align="center" class="{% if contentType['JobsPending'] == 0 %}greenCell{% else %}redCell{% endif %}">{{ contentType['JobsPending'] }}</td>
+					<td scope="row" align="center" class="{% if contentType['TermsPending'] == 0 %}greenCell{% else %}redCell{% endif %}">{{ contentType['TermsPending'] }}</td>
+				</tr>
+			{% endfor %}
+			</table></div>
+{% endblock content %}

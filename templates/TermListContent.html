@@ -1,0 +1,19 @@
+{% extends "TermListBase.html" %}
+{% block title %}Term List{% endblock %}
+{% block currentJob %}{% endblock currentJob %}
+{% block sidebarLanguages %}{{ super() }}{% endblock sidebarLanguages %}
+{% block sidebarProducts %}{{ super() }}{% endblock sidebarProducts %}
+{% block sidebarJobs %}{{ super() }}{% endblock sidebarJobs %}
+{% block contentTypeList %}{{ super() }}{% endblock contentTypeList %}
+		{% block contentTitle %}Terminology translation for {{ contentType }}{% endblock contentTitle %}
+		{% if terms %}
+		{% set contentColumnCount = 13+2 %}
+		{% block contentProductColumnHeader %}{{ super() }}{% endblock contentProductColumnHeader %}
+		{% block contentLanguageColumnHeader %}{{ super() }}{% endblock contentLanguageColumnHeader %}
+		{% block contentContentColumnHeader %}{% endblock contentContentColumnHeader %}
+		{% block contentProductColumnData %}{{ super() }}{% endblock contentProductColumnData %}
+		{% block contentLanguageColumnData %}{{ super() }}{% endblock contentLanguageColumnData %}
+		{% block contentContentColumnData %}{% endblock contentContentColumnData %}
+		{% else %}
+		{% block contentNoTerms %}No terms have been extracted for this content type.{% endblock contentNoTerms %}
+		{% endif %}

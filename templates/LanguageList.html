@@ -1,0 +1,31 @@
+{% extends "TermListBase.html" %}
+{% block title %}Target Language List{% endblock %}
+{% block currentJob %}{% endblock currentJob %}
+{% block sidebarLanguages %}{% endblock sidebarLanguages %}
+{% block sidebarProducts %}{{ super() }}{% endblock sidebarProducts %}
+{% block sidebarJobs %}{{ super() }}{% endblock sidebarJobs %}
+{% block contentTypeList %}{{ super() }}{% endblock contentTypeList %}
+{% block content %}
+		<h2>Term extraction statistics by target language</h2>
+		<p>The table lists all target languages currently available on the system.<br/>(The source language is always US English.)</p>
+		<div class="tabularContent"><table class="viewTable" style="display:none;">
+			<thead>
+				<tr>
+					<th nowrap scope="col">Target Language Name</th>
+						<th nowrap scope="col">2-letter Code</th>
+						<th nowrap scope="col">3-letter Code</th>
+						<th nowrap scope="col">Jobs<br/>Pending</th>
+						<th nowrap scope="col">Terms<br/>Pending</th>
+					</tr>
+			</thead>
+			{% for language in languages %}
+				<tr class="{{ loop.cycle('oddRow', 'evenRow') }} trHover clickRow" onclick="window.open('TermListLanguage.html?languageID={{ language['LanguageID'] }}', '_self');">
+					<td scope="row" align="center">{{ language['LangName'] }}</td>
+					<td scope="row" align="center" nowrap>{{ language['LangCode2Ltr'] }}</td>
+					<td scope="row" align="center" nowrap>{{ language['LangCode3Ltr'] }}</td>
+					<td scope="row" align="center" class="{% if language['JobsPending'] == 0 %}greenCell{% else %}redCell{% endif %}">{{ language['JobsPending'] }}</td>
+					<td scope="row" align="center" class="{% if language['TermsPending'] == 0 %}greenCell{% else %}redCell{% endif %}">{{ language['TermsPending'] }}</td>
+				</tr>
+			{% endfor %}
+			</table></div>
+{% endblock content %}
