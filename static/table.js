@@ -325,6 +325,8 @@ function toggleTranslateTerm(evt) {
 	}
 }
 
+
+
 function saveTranslation(evt) {
 	isAuthorised(function(authorised) {
 		if (authorised) {

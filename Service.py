@@ -433,6 +433,7 @@ def buildQuickAccess(cursor):
 
 @app.route('/', methods=['GET'])
 @app.route('/index.html', methods=['GET', 'POST'])
+#This is the login
 def index():
 	global mainKey
 	form = LoginForm()
@@ -1172,6 +1173,18 @@ def convertContent(content):
 	for datum in content:
 		result[datum['name']] = datum['value']
 	return result
+
+@app.route('/pullOnePage/<pageNumber>/<pageViewCount>', methods=['POST'])
+def pullOnePage():
+	#route for pagination
+	pageNumber = pageNumber
+	paveViewCount = pageViewCount
+	multiplier = pageNumber * pageViewCount
+	content = convertContent(request.get_json())
+	conn = connectToDB()
+	cursor = conn.cursor(pymysql.cursors.DictCursor)
+	cursor.execute("select * from Termlist")
+	ptr = cursor.fetchall()
 	
 @app.route('/translateTerm', methods=['POST'])
 def translateTerm():
