@@ -676,18 +676,22 @@ def TermListLanguage():
 		session['pageNum'] = 1;
 		pageNum = 1
 	
-	conn = connetcToDB()
+	conn = connectToDB()
 	cursor = conn.cursor(pymysql.cursors.DictCursor)
 	#if not languageID:
 	#	languageName = request.args.get('languageName', '')
 	#	if not languageName:
 	#		return redirect('LanguageList.html')
 	#	cursor exe
+
 	#count the number of expected records returned
-	cursor.execute("select distinct TermID from TermList where LangCode3Ltr = (select LangCode3Ltr from TargetLanguages where ID = %s) " % languageID) ")
+	cursor.execute("select count(distinct TermID) from TermList where LangCode3Ltr = (select LangCode3Ltr from TargetLanguages where ID = %s);" % languageID)
+	# for row in cursor.fetchall() :
+	# 	logger.debug(row[0])	
 	terms = cursor.fetchall()
-	for r in cursor.fetchall
-		print r
+	logger.debug(terms[0]['count(distinct TermID)'])
+	logger.debug("QUERY END")
+
 
 	## END DK
 
@@ -1241,6 +1245,11 @@ def translateTerm():
 	content['HasArchive'] = str(content['HasArchive'])
 	content['HasComments'] = str(content['HasComments'])
 	return json.dumps(content)
+
+#not in use yet but to be used to build a more generalized pagecount function
+def getPageCount(pageQ):
+	logger.debug(pageQ)
+	return
 	
 def cleanup(*args):
 	global threads
