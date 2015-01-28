@@ -667,7 +667,30 @@ def TermListLanguage():
 	userID = 0
 	userFirstName = ""
 	userLastName = ""
+
+	#DK
+	pageNum = "";
+	if 'pageNum' in session:
+		pageNum = session['pageNum']
+	else:
+		session['pageNum'] = 1;
+		pageNum = 1
 	
+	conn = connetcToDB()
+	cursor = conn.cursor(pymysql.cursors.DictCursor)
+	#if not languageID:
+	#	languageName = request.args.get('languageName', '')
+	#	if not languageName:
+	#		return redirect('LanguageList.html')
+	#	cursor exe
+	#count the number of expected records returned
+	cursor.execute("select distinct TermID from TermList where LangCode3Ltr = (select LangCode3Ltr from TargetLanguages where ID = %s) " % languageID) ")
+	terms = cursor.fetchall()
+	for r in cursor.fetchall
+		print r
+
+	## END DK
+
 	if 'UserID' in session:
 		userID = session['UserID']
 		userFirstName = session['UserFirstName']
