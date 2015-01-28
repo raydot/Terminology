@@ -661,6 +661,23 @@ def TermList():
 			userName = userFirstName + " " + userLastName,
 			STAGING = isStaging)
 		
+#DK TEST PAGES
+@app.route('/dkPagingTestH.html', methods=['GET'])
+def dkPagingTestH():
+	testjobID = request.args.get('testjobID')
+	conn = connectToDB()
+	cursor = conn.cursor(pymysql.cursors.DictCursor)
+	#testjobID = 330
+	cursor.execute("select * from TermList where JobID = %s order by Term asc" % testjobID)
+	conn.close()
+	return render_template('dkPagingTest.html',
+		testjobID = testjobID)
+
+# NO PHP ON SERVER
+# @app.route('/dkPagingTestP.php')
+# def dkPagingTestP():
+# 	return(render_template('dkPagingTest.php'))
+
 @app.route('/TermListLanguage.html', methods=['GET'])
 def TermListLanguage():
 	languageID = request.args.get('languageID', '')
@@ -689,8 +706,8 @@ def TermListLanguage():
 	# for row in cursor.fetchall() :
 	# 	logger.debug(row[0])	
 	terms = cursor.fetchall()
-	logger.debug(terms[0]['count(distinct TermID)'])
-	logger.debug("QUERY END")
+	numTotPages = (terms[0]['count(distinct TermID)'])
+	#logger.debug("QUERY END")
 
 
 	## END DK
@@ -727,6 +744,7 @@ def TermListLanguage():
 			latestJobs = lateJobs,
 			quickAccess = quickAccess,
 			terms = terms,
+			numTotPages = numTotPages,
 			userID = userID,
 			userName = userFirstName + " " + userLastName,
 			STAGING = isStaging)
@@ -740,6 +758,7 @@ def TermListLanguage():
 			recentProducts = recentProds,
 			latestJobs = lateJobs,
 			quickAccess = quickAccess,
+			numTotPages = numTotPages,
 			userID = userID,
 			userName = userFirstName + " " + userLastName,
 			STAGING = isStaging)

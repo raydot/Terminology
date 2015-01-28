@@ -48,7 +48,8 @@
 			</li>
 {% endif %}{% endblock sidebarJobs %}
 {% block content %}
-		<input type="hidden" name="UserID" value="{{ userID }}"/>
+		<input type="hidden" name="UserID" value="{{ userID }}">
+		<input type="hidden" name="numTotPages" value="{{ numTotPages }}">
 		<h2>{% block contentTitle %}{% endblock contentTitle %}</h2>
 		{% if terms %}
 		<div style="margin-right: 200px">
