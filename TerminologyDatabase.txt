@@ -1,0 +1,520 @@
+BEGIN
+
+CREATE DATABASE Terminology
+DEFAULT CHARACTER SET utf8;
+
+CREATE TABLE Terminology.nGrams (
+	nGram text NOT NULL,
+	FULLTEXT INDEX (nGram)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8
+
+DROP TABLE Terminology.nGrams
+
+CREATE TABLE Terminology.ContentTypes (
+	ID tinyint UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+	ContentType tinytext NOT NULL,
+	LastUpdate timestamp NOT NULL,
+	CONSTRAINT UNIQUE (ContentType(4))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE Terminology.Glossaries (
+	ID tinyint UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+	GlossaryName tinytext NOT NULL,
+	LastUpdate timestamp NOT NULL,
+	CONSTRAINT UNIQUE (GlossaryName(10))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE Terminology.Products (
+	ID tinyint UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+	ProductCode tinytext NOT NULL,
+	ProductName text NOT NULL,
+	GlossID tinyint UNSIGNED NOT NULL,
+	LastUpdate timestamp NOT NULL,
+	LastUsed timestamp NULL,
+	CONSTRAINT UNIQUE (ProductCode(15)),
+	CONSTRAINT UNIQUE (ProductName(50)),
+	CONSTRAINT GlossID_key_product FOREIGN KEY (GlossID) REFERENCES Glossaries(ID) ON UPDATE CASCADE ON DELETE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE Terminology.TargetLanguages (
+	ID tinyint UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+	LangCode2Ltr tinytext NOT NULL,
+	LangCode3Ltr tinytext NOT NULL,
+	LangName tinytext NOT NULL,
+	LastUpdate timestamp NOT NULL,
+	LastUsed timestamp NULL,
+	CONSTRAINT UNIQUE (LangCode2Ltr(7)),
+	CONSTRAINT UNIQUE (LangCode3Ltr(3)),
+	CONSTRAINT UNIQUE (LangName(30))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE Terminology.SourceTerms (
+	ID mediumint UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+	Term text NOT NULL,
+	FirstAdded timestamp NOT NULL,
+	CONSTRAINT UNIQUE (Term(150))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE Terminology.PendingJobs (
+	ID smallint UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+	ContentTypeID tinyint UNSIGNED NOT NULL,
+	ProductID tinyint UNSIGNED NOT NULL,
+	LanguageID tinyint UNSIGNED NOT NULL,
+	Pending bit(1) DEFAULT b'1' NOT NULL,
+	DatePosted timestamp DEFAULT CURRENT_TIMESTAMP,
+	DateProcessed timestamp NULL,
+	CONSTRAINT ContentTypeID_key_job FOREIGN KEY (ContentTypeID) REFERENCES ContentTypes(ID) ON UPDATE CASCADE ON DELETE RESTRICT,
+	CONSTRAINT ProductID_key_job FOREIGN KEY (ProductID) REFERENCES Products(ID) ON UPDATE CASCADE ON DELETE RESTRICT,
+	CONSTRAINT LanguageID_key_job FOREIGN KEY (LanguageID) REFERENCES TargetLanguages(ID) ON UPDATE CASCADE ON DELETE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE Terminology.TermTranslations (
+	ID mediumint UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+	JobID smallint UNSIGNED NOT NULL,
+	SourceTermID mediumint UNSIGNED NOT NULL,
+	LanguageID tinyint UNSIGNED NOT NULL,
+	ProductID tinyint UNSIGNED NOT NULL,
+	GlossID tinyint UNSIGNED NOT NULL,
+	NewTo enum('Product', 'Corpus') NOT NULL,
+	ContentTypeID tinyint UNSIGNED NOT NULL,
+	TermTranslation text,
+	IgnoreTerm bit(1) DEFAULT b'0' NOT NULL,
+	DateRequested timestamp DEFAULT 0 NOT NULL,
+	DateUpdated timestamp NULL ON UPDATE CURRENT_TIMESTAMP,
+	DateTranslated timestamp NULL,
+	TranslateUserID tinyblob,
+	Verified bit(1) DEFAULT b'0' NOT NULL,
+	VerifyUserID tinyblob,
+	Approved bit(1) DEFAULT b'0' NOT NULL,
+	ApproveUserID tinyblob,
+	CONSTRAINT TermTranslations_unique UNIQUE (SourceTermID, LanguageID, GlossID),
+	CONSTRAINT JobID_key_term FOREIGN KEY (JobID) REFERENCES PendingJobs(ID) ON UPDATE CASCADE ON DELETE RESTRICT,
+	CONSTRAINT LanguageID_key_term FOREIGN KEY (LanguageID) REFERENCES TargetLanguages(ID) ON UPDATE CASCADE ON DELETE RESTRICT,
+	CONSTRAINT SourceTermID_key FOREIGN KEY (SourceTermID) REFERENCES SourceTerms(ID) ON UPDATE CASCADE ON DELETE CASCADE,
+	CONSTRAINT ProductID_key_term FOREIGN KEY (ProductID) REFERENCES Products(ID) ON UPDATE CASCADE ON DELETE RESTRICT,
+	CONSTRAINT GlossID_key_term FOREIGN KEY (GlossID) REFERENCES Glossaries(ID) ON UPDATE CASCADE ON DELETE RESTRICT,
+	CONSTRAINT ContentTypeID_key_term FOREIGN KEY (ContentTypeID) REFERENCES ContentTypes(ID) ON UPDATE CASCADE ON DELETE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE Terminology.Archive (
+	ID mediumint UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+	TermTranslationID mediumint UNSIGNED NOT NULL,
+	TermTranslation text NOT NULL,
+	DateTranslated timestamp DEFAULT 0 NOT NULL,
+	TranslateUserID tinyblob,
+	CONSTRAINT TermTranslationID_key_archive FOREIGN KEY (TermTranslationID) REFERENCES TermTranslations(ID) ON UPDATE CASCADE ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE Terminology.TermContexts (
+	ID mediumint UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+	TermTranslationID mediumint UNSIGNED NOT NULL,
+	SourceContext text NOT NULL,
+	MTofContext text,
+	ContentTypeID tinyint UNSIGNED NOT NULL,
+	LastUpdate timestamp NOT NULL,
+	CONSTRAINT TermContexts_unique UNIQUE (SourceContext(255), TermTranslationID),
+	CONSTRAINT TermTranslationID_key_context FOREIGN KEY (TermTranslationID) REFERENCES TermTranslations(ID) ON UPDATE CASCADE ON DELETE CASCADE,
+	CONSTRAINT ContentTypeID_key_context FOREIGN KEY (ContentTypeID) REFERENCES ContentTypes(ID) ON UPDATE CASCADE ON DELETE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE Terminology.TermComments (
+	ID mediumint UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+	TermTranslationID mediumint UNSIGNED NOT NULL,
+	Comment text NOT NULL,
+	UserID tinyblob,
+	CommentDate timestamp DEFAULT CURRENT_TIMESTAMP,
+	CONSTRAINT TermTranslationID_key_comment FOREIGN KEY (TermTranslationID) REFERENCES TermTranslations(ID) ON UPDATE CASCADE ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+create table Terminology.debug (debugtext text, stamp timestamp default current_timestamp) engine=InnoDB default charset=utf8;
+drop trigger Terminology.UpdateTermTranslation
+select * from debug
+update TermTranslations set IgnoreTerm=b'1', TermTranslation='', TranslateUserID='UserID2', Verified=b'0', Approved=b'0' where TermTranslations.ID=25
+
+CREATE TRIGGER Terminology.UpdateTermTranslation
+	BEFORE UPDATE ON Terminology.TermTranslations
+FOR EACH ROW
+BEGIN
+	IF OLD.Verified != NEW.Verified THEN
+		IF NEW.Verified = b'1' THEN
+			SET NEW.VerifyUserID = NEW.TranslateUserID;
+		ELSE
+			SET NEW.VerifyUserID = NULL;
+		END IF;
+	END IF;
+	IF OLD.Approved != NEW.Approved THEN
+		IF NEW.Approved = b'1' THEN
+			SET NEW.ApproveUserID = NEW.TranslateUserID;
+		ELSE
+			SET NEW.ApproveUserID = NULL;
+		END IF;
+	END IF;
+--	insert into debug(debugtext) values (old.termtranslation);
+--	insert into debug(debugtext) values (new.termtranslation);
+	IF OLD.termtranslation is null or OLD.TermTranslation not like binary NEW.TermTranslation THEN
+		IF OLD.termtranslation is not null THEN
+--			insert into debug(debugtext) values ('Old is not null and is diffrent from new');
+			INSERT INTO Terminology.Archive(TermTranslationID, TermTranslation, DateTranslated, TranslateUserID) VALUES (OLD.ID, OLD.TermTranslation, OLD.DateTranslated, OLD.TranslateUserID);
+		END IF;
+		IF NEW.TermTranslation not like "" THEN
+			SET NEW.DateTranslated = CURRENT_TIMESTAMP;
+		ELSE
+			SET NEW.TermTranslation = NULL;
+--			SET NEW.TranslateUserID = NULL;
+		END IF;
+	ELSE
+		SET NEW.TranslateUserID = OLD.TranslateUserID;
+	END IF;
+END;
+
+
+
+CREATE FUNCTION Terminology.selectContentTypeID(sourceTypeID tinyint, targetTypeID tinyint)
+RETURNS tinyint DETERMINISTIC
+READS SQL DATA
+BEGIN
+	IF (sourceTypeID = targetTypeID) THEN
+		RETURN sourceTypeID;
+	ELSE
+		RETURN (SELECT ID FROM ContentTypes WHERE ContentType = 'Both');
+	END IF;
+END;
+
+CREATE FUNCTION Terminology.getUserNameByID(userID tinyblob)
+	RETURNS tinytext CHARSET utf8
+    READS SQL DATA
+    DETERMINISTIC
+BEGIN
+	IF (cast(userID as char) = 'UserID' OR cast(userID as char) = 'UserID2') THEN
+		RETURN 'UserID';
+	ELSE
+		RETURN (SELECT CONCAT_WS(' ', FirstName, LastName) FROM Terminology_staging.Users WHERE ID = cast(userID as char));
+	END IF;
+END;
+
+CREATE FUNCTION Terminology.existsArchive(termID mediumint)
+	RETURNS bit(1)
+	READS SQL DATA
+	DETERMINISTIC
+BEGIN
+	IF ((SELECT COUNT(*) FROM Archive WHERE TermTranslationID = termID) >= 1) THEN
+		RETURN b'1';
+	ELSE
+		RETURN b'0';
+	END IF;
+END;
+
+select existsArchive(12472)
+(SELECT COUNT(*) FROM Archive WHERE TermTranslationID = 12472) >= 1
+
+CREATE FUNCTION Terminology.existComments(termID mediumint)
+	RETURNS bit(1)
+	READS SQL DATA
+	DETERMINISTIC
+BEGIN
+	IF ((SELECT COUNT(*) FROM TermComments WHERE TermTranslationID = termID LIMIT 1) >= 1) THEN
+		RETURN b'1';
+	ELSE
+		RETURN b'0';
+	END IF;
+END;
+
+
+CREATE ALGORITHM = MERGE VIEW Terminology.TermList AS
+SELECT PendingJobs.ID as JobID, TermTranslations.ID as TermID, TermTranslations.IgnoreTerm, SourceTerms.Term, TermTranslations.TermTranslation, TargetLanguages.LangCode2Ltr, TargetLanguages.LangCode3Ltr, TargetLanguages.LangName, Products.ProductCode, Products.ProductName, ContentTypes.ContentType, TermTranslations.NewTo, TermTranslations.DateRequested, TermTranslations.DateUpdated, TermTranslations.DateTranslated, getUserNameByID(TermTranslations.TranslateUserID) AS TranslateUserID, TermTranslations.Verified, getUserNameByID(TermTranslations.VerifyUserID) AS VerifyUserID, TermTranslations.Approved, getUserNameByID(TermTranslations.ApproveUserID) AS ApproveUserID, existsArchive(TermTranslations.ID) AS HasArchive, existComments(TermTranslations.ID) AS HasComments
+FROM TermTranslations
+INNER JOIN SourceTerms ON SourceTerms.ID = TermTranslations.SourceTermID
+INNER JOIN TargetLanguages ON TargetLanguages.ID = TermTranslations.LanguageID
+INNER JOIN Products ON Products.ID = TermTranslations.ProductID
+INNER JOIN ContentTypes ON ContentTypes.ID = TermTranslations.ContentTypeID
+INNER JOIN PendingJobs ON PendingJobs.ID = TermTranslations.JobID
+ORDER BY PendingJobs.DateProcessed DESC, SourceTerms.Term ASC;
+
+CREATE ALGORITHM = MERGE VIEW Terminology.JobList AS
+SELECT PendingJobs.ID as JobID, Products.ProductCode, Products.ProductName, TargetLanguages.LangCode3Ltr, TargetLanguages.LangName, ContentTypes.ContentType, PendingJobs.Pending, PendingJobs.DatePosted, PendingJobs.DateProcessed, (SELECT COUNT(ID) FROM TermTranslations WHERE PendingJobs.ID = TermTranslations.JobID AND TermTranslations.Approved = 0) AS TermsPending, (PendingJobs.Pending = b'0' AND (SELECT COUNT(ID) FROM TermTranslations WHERE PendingJobs.ID = TermTranslations.JobID AND TermTranslations.Approved = 0) = 0) AS Completed
+FROM PendingJobs
+INNER JOIN Products ON Products.ID = PendingJobs.ProductID
+INNER JOIN TargetLanguages ON TargetLanguages.ID = PendingJobs.LanguageID
+INNER JOIN ContentTypes ON ContentTypes.ID = PendingJobs.ContentTypeID
+ORDER BY PendingJobs.DatePosted DESC;
+
+CREATE ALGORITHM = MERGE VIEW Terminology.LanguageList AS
+SELECT DISTINCT TargetLanguages.ID as LanguageID, TargetLanguages.LangName, TargetLanguages.LangCode2Ltr, TargetLanguages.LangCode3Ltr, (SELECT COUNT(JobID) FROM JobList WHERE JobList.LangCode3Ltr = TargetLanguages.LangCode3Ltr AND Completed = 0) AS JobsPending, (SELECT COUNT(ID) FROM TermTranslations WHERE TargetLanguages.ID = TermTranslations.LanguageID AND TermTranslations.Approved = 0) AS TermsPending
+FROM TargetLanguages
+ORDER BY TargetLanguages.LangCode2Ltr ASC;
+
+CREATE ALGORITHM = MERGE VIEW Terminology.ProductList AS
+SELECT DISTINCT Products.ID as ProductID, Products.ProductCode, Products.ProductName, (SELECT COUNT(JobID) FROM JobList WHERE JobList.ProductCode = Products.ProductCode AND Completed = 0) AS JobsPending, (SELECT COUNT(ID) FROM TermTranslations WHERE Products.ID = TermTranslations.ProductID AND TermTranslations.Approved = 0) AS TermsPending
+FROM Products
+ORDER BY Products.ProductName ASC;
+
+CREATE ALGORITHM = MERGE VIEW Terminology.ContentList AS
+SELECT DISTINCT ContentTypes.ID as ContentTypeID, ContentTypes.ContentType, (SELECT COUNT(JobID) FROM JobList WHERE JobList.ContentType = ContentTypes.ContentType AND Completed = 0) AS JobsPending, (SELECT COUNT(ID) FROM TermTranslations WHERE (ContentTypes.ID = TermTranslations.ContentTypeID OR TermTranslations.ContentTypeID = (SELECT ID FROM ContentTypes WHERE ContentType = 'Both')) AND TermTranslations.Approved = 0) AS TermsPending
+FROM ContentTypes
+WHERE ContentTypes.ContentType != 'Both'
+ORDER BY ContentTypes.ID ASC;
+
+CREATE ALGORITHM = MERGE VIEW Terminology.ProductGlossaries AS
+SELECT Products.ID, Products.ProductName, Products.ProductCode, Glossaries.GlossaryName, Products.LastUpdate
+FROM Products
+INNER JOIN Glossaries on Glossaries.ID = Products.GlossID
+ORDER BY Glossaries.GlossaryName ASC, Products.ProductName ASC;
+
+
+INSERT INTO Terminology.ContentTypes (ContentType, LastUpdate) VALUES ('Software', null);
+INSERT INTO Terminology.ContentTypes (ContentType, LastUpdate) VALUES ('Documentation', null);
+INSERT INTO Terminology.ContentTypes (ContentType, LastUpdate) VALUES ('Both', null);
+
+INSERT INTO Terminology.TargetLanguages (LangCode2Ltr, LangCode3Ltr, LangName, LastUpdate) VALUES ('cs', 'csy', 'Czech', null);
+INSERT INTO Terminology.TargetLanguages (LangCode2Ltr, LangCode3Ltr, LangName, LastUpdate) VALUES ('de', 'deu', 'German', null);
+INSERT INTO Terminology.TargetLanguages (LangCode2Ltr, LangCode3Ltr, LangName, LastUpdate) VALUES ('es', 'esp', 'Spanish', null);
+INSERT INTO Terminology.TargetLanguages (LangCode2Ltr, LangCode3Ltr, LangName, LastUpdate) VALUES ('fr', 'fra', 'French', null);
+INSERT INTO Terminology.TargetLanguages (LangCode2Ltr, LangCode3Ltr, LangName, LastUpdate) VALUES ('hu', 'hun', 'Hungarian', null);
+INSERT INTO Terminology.TargetLanguages (LangCode2Ltr, LangCode3Ltr, LangName, LastUpdate) VALUES ('it', 'ita', 'Italian', null);
+INSERT INTO Terminology.TargetLanguages (LangCode2Ltr, LangCode3Ltr, LangName, LastUpdate) VALUES ('ja', 'jpn', 'Japanese', null);
+INSERT INTO Terminology.TargetLanguages (LangCode2Ltr, LangCode3Ltr, LangName, LastUpdate) VALUES ('ko', 'kor', 'Korean', null);
+INSERT INTO Terminology.TargetLanguages (LangCode2Ltr, LangCode3Ltr, LangName, LastUpdate) VALUES ('pl', 'plk', 'Polish', null);
+INSERT INTO Terminology.TargetLanguages (LangCode2Ltr, LangCode3Ltr, LangName, LastUpdate) VALUES ('pt-br', 'ptb', 'Brazilian Portuguese', null);
+INSERT INTO Terminology.TargetLanguages (LangCode2Ltr, LangCode3Ltr, LangName, LastUpdate) VALUES ('pt-pt', 'ptg', 'Portuguese Portuguese', null);
+INSERT INTO Terminology.TargetLanguages (LangCode2Ltr, LangCode3Ltr, LangName, LastUpdate) VALUES ('ru', 'rus', 'Russian', null);
+INSERT INTO Terminology.TargetLanguages (LangCode2Ltr, LangCode3Ltr, LangName, LastUpdate) VALUES ('zh-hans', 'chs', 'Simplified Chinese', null);
+INSERT INTO Terminology.TargetLanguages (LangCode2Ltr, LangCode3Ltr, LangName, LastUpdate) VALUES ('zh-hant', 'cht', 'Traditional Chinese', null);
+INSERT INTO Terminology.TargetLanguages (LangCode2Ltr, LangCode3Ltr, LangName, LastUpdate) VALUES ('fi', 'fin', 'Finish', null);
+INSERT INTO Terminology.TargetLanguages (LangCode2Ltr, LangCode3Ltr, LangName, LastUpdate) VALUES ('nl', 'nld', 'Dutch', null);
+INSERT INTO Terminology.TargetLanguages (LangCode2Ltr, LangCode3Ltr, LangName, LastUpdate) VALUES ('no', 'nor', 'Norwegian', null);
+INSERT INTO Terminology.TargetLanguages (LangCode2Ltr, LangCode3Ltr, LangName, LastUpdate) VALUES ('dk', 'dnk', 'Danish', null);
+INSERT INTO Terminology.TargetLanguages (LangCode2Ltr, LangCode3Ltr, LangName, LastUpdate) VALUES ('es-mx', 'las', 'Latin American Spanish (Mexico)', null);
+INSERT INTO Terminology.TargetLanguages (LangCode2Ltr, LangCode3Ltr, LangName, LastUpdate) VALUES ('ro', 'rom', 'Romanian', null);
+INSERT INTO Terminology.TargetLanguages (LangCode2Ltr, LangCode3Ltr, LangName, LastUpdate) VALUES ('se', 'swe', 'Swedish', null);
+INSERT INTO Terminology.TargetLanguages (LangCode2Ltr, LangCode3Ltr, LangName, LastUpdate) VALUES ('th', 'tha', 'Thai', null);
+INSERT INTO Terminology.TargetLanguages (LangCode2Ltr, LangCode3Ltr, LangName, LastUpdate) VALUES ('tr', 'tur', 'Turkish', null);
+INSERT INTO Terminology.TargetLanguages (LangCode2Ltr, LangCode3Ltr, LangName, LastUpdate) VALUES ('sk', 'slk', 'Slovak', null);
+INSERT INTO Terminology.TargetLanguages (LangCode2Ltr, LangCode3Ltr, LangName, LastUpdate) VALUES ('gr', 'gre', 'Greek', null);
+
+INSERT INTO Terminology.Glossaries (GlossaryName, LastUpdate) VALUES ('123D', null);
+INSERT INTO Terminology.Glossaries (GlossaryName, LastUpdate) VALUES ('PLM360', null);
+INSERT INTO Terminology.Glossaries (GlossaryName, LastUpdate) VALUES ('3DSMAX', null);
+INSERT INTO Terminology.Glossaries (GlossaryName, LastUpdate) VALUES ('ACE', null);
+INSERT INTO Terminology.Glossaries (GlossaryName, LastUpdate) VALUES ('ACD', null);
+INSERT INTO Terminology.Glossaries (GlossaryName, LastUpdate) VALUES ('ADR', null);
+INSERT INTO Terminology.Glossaries (GlossaryName, LastUpdate) VALUES ('ADS', null);
+INSERT INTO Terminology.Glossaries (GlossaryName, LastUpdate) VALUES ('ADSK360', null);
+INSERT INTO Terminology.Glossaries (GlossaryName, LastUpdate) VALUES ('AIRMAX', null);
+INSERT INTO Terminology.Glossaries (GlossaryName, LastUpdate) VALUES ('ALSK', null);
+INSERT INTO Terminology.Glossaries (GlossaryName, LastUpdate) VALUES ('ACM', null);
+INSERT INTO Terminology.Glossaries (GlossaryName, LastUpdate) VALUES ('APPSTORE', null);
+INSERT INTO Terminology.Glossaries (GlossaryName, LastUpdate) VALUES ('AQTO', null);
+INSERT INTO Terminology.Glossaries (GlossaryName, LastUpdate) VALUES ('ACA', null);
+INSERT INTO Terminology.Glossaries (GlossaryName, LastUpdate) VALUES ('ARDES', null);
+INSERT INTO Terminology.Glossaries (GlossaryName, LastUpdate) VALUES ('ALGSIM', null);
+INSERT INTO Terminology.Glossaries (GlossaryName, LastUpdate) VALUES ('BDS', null);
+INSERT INTO Terminology.Glossaries (GlossaryName, LastUpdate) VALUES ('BLDSYS', null);
+INSERT INTO Terminology.Glossaries (GlossaryName, LastUpdate) VALUES ('BUZZ', null);
+INSERT INTO Terminology.Glossaries (GlossaryName, LastUpdate) VALUES ('CERCIP', null);
+INSERT INTO Terminology.Glossaries (GlossaryName, LastUpdate) VALUES ('CIV3D', null);
+INSERT INTO Terminology.Glossaries (GlossaryName, LastUpdate) VALUES ('CLOUDS', null);
+INSERT INTO Terminology.Glossaries (GlossaryName, LastUpdate) VALUES ('RSA', null);
+INSERT INTO Terminology.Glossaries (GlossaryName, LastUpdate) VALUES ('FDS', null);
+INSERT INTO Terminology.Glossaries (GlossaryName, LastUpdate) VALUES ('HSTYLR', null);
+INSERT INTO Terminology.Glossaries (GlossaryName, LastUpdate) VALUES ('IDS', null);
+INSERT INTO Terminology.Glossaries (GlossaryName, LastUpdate) VALUES ('MAP', null);
+INSERT INTO Terminology.Glossaries (GlossaryName, LastUpdate) VALUES ('INFMDR', null);
+INSERT INTO Terminology.Glossaries (GlossaryName, LastUpdate) VALUES ('INV', null);
+INSERT INTO Terminology.Glossaries (GlossaryName, LastUpdate) VALUES ('INVPUB', null);
+INSERT INTO Terminology.Glossaries (GlossaryName, LastUpdate) VALUES ('IWD', null);
+INSERT INTO Terminology.Glossaries (GlossaryName, LastUpdate) VALUES ('PTFM', null);
+INSERT INTO Terminology.Glossaries (GlossaryName, LastUpdate) VALUES ('MARQUEE', null);
+INSERT INTO Terminology.Glossaries (GlossaryName, LastUpdate) VALUES ('MAYA', null);
+INSERT INTO Terminology.Glossaries (GlossaryName, LastUpdate) VALUES ('MBOX', null);
+INSERT INTO Terminology.Glossaries (GlossaryName, LastUpdate) VALUES ('MF', null);
+INSERT INTO Terminology.Glossaries (GlossaryName, LastUpdate) VALUES ('NW', null);
+INSERT INTO Terminology.Glossaries (GlossaryName, LastUpdate) VALUES ('PDS', null);
+INSERT INTO Terminology.Glossaries (GlossaryName, LastUpdate) VALUES ('PLNT3D', null);
+INSERT INTO Terminology.Glossaries (GlossaryName, LastUpdate) VALUES ('PLTDS', null);
+INSERT INTO Terminology.Glossaries (GlossaryName, LastUpdate) VALUES ('PNID', null);
+INSERT INTO Terminology.Glossaries (GlossaryName, LastUpdate) VALUES ('REVIT', null);
+INSERT INTO Terminology.Glossaries (GlossaryName, LastUpdate) VALUES ('SFTIM', null);
+INSERT INTO Terminology.Glossaries (GlossaryName, LastUpdate) VALUES ('SHOWCASE', null);
+INSERT INTO Terminology.Glossaries (GlossaryName, LastUpdate) VALUES ('ASD', null);
+INSERT INTO Terminology.Glossaries (GlossaryName, LastUpdate) VALUES ('TORCH', null);
+INSERT INTO Terminology.Glossaries (GlossaryName, LastUpdate) VALUES ('EDM', null);
+INSERT INTO Terminology.Glossaries (GlossaryName, LastUpdate) VALUES ('M360', null);
+
+INSERT INTO Terminology.Products (ProductCode, ProductName, GlossID, LastUpdate) VALUES ('123D', '123D', 1, null);
+INSERT INTO Terminology.Products (ProductCode, ProductName, GlossID, LastUpdate) VALUES ('360NXS', 'Autodesk PLM 360', 2, null);
+INSERT INTO Terminology.Products (ProductCode, ProductName, GlossID, LastUpdate) VALUES ('3DSMAX', 'Autodesk 3ds Max', 3, null);
+INSERT INTO Terminology.Products (ProductCode, ProductName, GlossID, LastUpdate) VALUES ('ACAD_E', 'AutoCAD Electrical', 4, null);
+INSERT INTO Terminology.Products (ProductCode, ProductName, GlossID, LastUpdate) VALUES ('ACD', 'AutoCAD', 5, null);
+INSERT INTO Terminology.Products (ProductCode, ProductName, GlossID, LastUpdate) VALUES ('ACD360MOB', 'AutoCAD 360 mobile', 5, null);
+INSERT INTO Terminology.Products (ProductCode, ProductName, GlossID, LastUpdate) VALUES ('ACD360WEB', 'AutoCAD 360 web', 5, null);
+INSERT INTO Terminology.Products (ProductCode, ProductName, GlossID, LastUpdate) VALUES ('ACDMAC', 'AutoCAD for Mac', 5, null);
+INSERT INTO Terminology.Products (ProductCode, ProductName, GlossID, LastUpdate) VALUES ('ACDWS', 'AutoCAD WS', 5, null);
+INSERT INTO Terminology.Products (ProductCode, ProductName, GlossID, LastUpdate) VALUES ('ADR', 'Autodesk Design Review', 6, null);
+INSERT INTO Terminology.Products (ProductCode, ProductName, GlossID, LastUpdate) VALUES ('ADS', 'AutoCAD Design Suite', 7, null);
+INSERT INTO Terminology.Products (ProductCode, ProductName, GlossID, LastUpdate) VALUES ('ADSK360', 'Autodesk 360', 8, null);
+INSERT INTO Terminology.Products (ProductCode, ProductName, GlossID, LastUpdate) VALUES ('AIRMAX', 'AIRMAX', 9, null);
+INSERT INTO Terminology.Products (ProductCode, ProductName, GlossID, LastUpdate) VALUES ('ALSK', 'Autodesk SketchBook Designer', 10, null);
+INSERT INTO Terminology.Products (ProductCode, ProductName, GlossID, LastUpdate) VALUES ('ALSKACD', 'Autodesk SketchBook Designer for AutoCAD', 10, null);
+INSERT INTO Terminology.Products (ProductCode, ProductName, GlossID, LastUpdate) VALUES ('ALSKINK', 'Autodesk SketchBook Ink', 10, null);
+INSERT INTO Terminology.Products (ProductCode, ProductName, GlossID, LastUpdate) VALUES ('AMECH_PP', 'AutoCAD Mechanical', 11, null);
+INSERT INTO Terminology.Products (ProductCode, ProductName, GlossID, LastUpdate) VALUES ('APPSTORE', 'APPSTORE', 12, null);
+INSERT INTO Terminology.Products (ProductCode, ProductName, GlossID, LastUpdate) VALUES ('AQTO', 'Autodesk Quantity Takeoff', 13, null);
+INSERT INTO Terminology.Products (ProductCode, ProductName, GlossID, LastUpdate) VALUES ('ARCHDESK', 'Architectural Desktop', 14, null);
+INSERT INTO Terminology.Products (ProductCode, ProductName, GlossID, LastUpdate) VALUES ('ARDES', 'AutoCAD Raster Design', 15, null);
+INSERT INTO Terminology.Products (ProductCode, ProductName, GlossID, LastUpdate) VALUES ('ASPRO', 'Autodesk Algor Simulation Professional', 16, null);
+INSERT INTO Terminology.Products (ProductCode, ProductName, GlossID, LastUpdate) VALUES ('BDS', 'Autodesk Building Design Suite', 17, null);
+INSERT INTO Terminology.Products (ProductCode, ProductName, GlossID, LastUpdate) VALUES ('BLDSYS', 'Building System', 18, null);
+INSERT INTO Terminology.Products (ProductCode, ProductName, GlossID, LastUpdate) VALUES ('BZSW', 'Buzzsaw', 19, null);
+INSERT INTO Terminology.Products (ProductCode, ProductName, GlossID, LastUpdate) VALUES ('CERCIP', 'Autodesk Customer Involvement Program', 20, null);
+INSERT INTO Terminology.Products (ProductCode, ProductName, GlossID, LastUpdate) VALUES ('CIV3D', 'Autodesk Civil 3D', 21, null);
+INSERT INTO Terminology.Products (ProductCode, ProductName, GlossID, LastUpdate) VALUES ('CLOUDS', 'Autodesk ReCap', 22, null);
+INSERT INTO Terminology.Products (ProductCode, ProductName, GlossID, LastUpdate) VALUES ('CLOUD_RSA', 'Autodesk Robot Structural Analysis 360', 23, null);
+INSERT INTO Terminology.Products (ProductCode, ProductName, GlossID, LastUpdate) VALUES ('FDS', 'Factory Design Suite', 24, null);
+INSERT INTO Terminology.Products (ProductCode, ProductName, GlossID, LastUpdate) VALUES ('HSTYLR', 'Autodesk Homestyler', 25, null);
+INSERT INTO Terminology.Products (ProductCode, ProductName, GlossID, LastUpdate) VALUES ('IDS', 'Autodesk Infrastructure Design Suite', 26, null);
+INSERT INTO Terminology.Products (ProductCode, ProductName, GlossID, LastUpdate) VALUES ('IMS', 'Autodesk Infrastructure Map Server', 27, null);
+INSERT INTO Terminology.Products (ProductCode, ProductName, GlossID, LastUpdate) VALUES ('INFMDR', 'Infrastructure Modeler', 28, null);
+INSERT INTO Terminology.Products (ProductCode, ProductName, GlossID, LastUpdate) VALUES ('INV', 'Autodesk Inventor', 29, null);
+INSERT INTO Terminology.Products (ProductCode, ProductName, GlossID, LastUpdate) VALUES ('INVETO', 'Autodesk Inventor ETO', 29, null);
+INSERT INTO Terminology.Products (ProductCode, ProductName, GlossID, LastUpdate) VALUES ('INVFUS', 'Autodesk Inventor Fusion', 29, null);
+INSERT INTO Terminology.Products (ProductCode, ProductName, GlossID, LastUpdate) VALUES ('INVPUB', 'Autodesk Inventor Publisher', 30, null);
+INSERT INTO Terminology.Products (ProductCode, ProductName, GlossID, LastUpdate) VALUES ('IWD', '???3', 31, null);
+INSERT INTO Terminology.Products (ProductCode, ProductName, GlossID, LastUpdate) VALUES ('LIRAFX', 'Platform Techonologies', 32, null);
+INSERT INTO Terminology.Products (ProductCode, ProductName, GlossID, LastUpdate) VALUES ('MAP', 'AutoCAD Map 3D', 27, null);
+INSERT INTO Terminology.Products (ProductCode, ProductName, GlossID, LastUpdate) VALUES ('MARQUEEAPPS', 'Marquee Apps', 33, null);
+INSERT INTO Terminology.Products (ProductCode, ProductName, GlossID, LastUpdate) VALUES ('MAYA', 'Maya', 34, null);
+INSERT INTO Terminology.Products (ProductCode, ProductName, GlossID, LastUpdate) VALUES ('MBXPRO', 'Autodesk Mudbox', 35, null);
+INSERT INTO Terminology.Products (ProductCode, ProductName, GlossID, LastUpdate) VALUES ('MF', 'Autodesk Simulation Moldflow', 36, null);
+INSERT INTO Terminology.Products (ProductCode, ProductName, GlossID, LastUpdate) VALUES ('NAV', 'NavisWorks', 37, null);
+INSERT INTO Terminology.Products (ProductCode, ProductName, GlossID, LastUpdate) VALUES ('PDS', 'Autodesk Product Design Suite', 38, null);
+INSERT INTO Terminology.Products (ProductCode, ProductName, GlossID, LastUpdate) VALUES ('PLNT3D', 'AutoCAD Plant 3D', 39, null);
+INSERT INTO Terminology.Products (ProductCode, ProductName, GlossID, LastUpdate) VALUES ('PLTDS', 'Autodesk Plant Design Suite', 40, null);
+INSERT INTO Terminology.Products (ProductCode, ProductName, GlossID, LastUpdate) VALUES ('PNID', 'AutoCAD P&ID', 41, null);
+INSERT INTO Terminology.Products (ProductCode, ProductName, GlossID, LastUpdate) VALUES ('RSAPRO', 'Autodesk Robot Structural Analysis Professional', 23, null);
+INSERT INTO Terminology.Products (ProductCode, ProductName, GlossID, LastUpdate) VALUES ('RVT', 'Revit', 42, null);
+INSERT INTO Terminology.Products (ProductCode, ProductName, GlossID, LastUpdate) VALUES ('SCFD', 'Autodesk Algor Simulation CFD', 16, null);
+INSERT INTO Terminology.Products (ProductCode, ProductName, GlossID, LastUpdate) VALUES ('SFTIM', 'Softimage', 43, null);
+INSERT INTO Terminology.Products (ProductCode, ProductName, GlossID, LastUpdate) VALUES ('SHOWCASE', 'Autodesk Showcase', 44, null);
+INSERT INTO Terminology.Products (ProductCode, ProductName, GlossID, LastUpdate) VALUES ('SIMDFM', 'Autodesk Simulation DFM', 16, null);
+INSERT INTO Terminology.Products (ProductCode, ProductName, GlossID, LastUpdate) VALUES ('SKETPRO', 'Autodesk Sketchbook Pro', 10, null);
+INSERT INTO Terminology.Products (ProductCode, ProductName, GlossID, LastUpdate) VALUES ('STRDET', 'AutoCAD Structural Detailing', 45, null);
+INSERT INTO Terminology.Products (ProductCode, ProductName, GlossID, LastUpdate) VALUES ('TORCH', 'Pixlr', 46, null);
+INSERT INTO Terminology.Products (ProductCode, ProductName, GlossID, LastUpdate) VALUES ('VLT', 'Autodesk Vault', 47, null);
+INSERT INTO Terminology.Products (ProductCode, ProductName, GlossID, LastUpdate) VALUES ('SIM360', 'Simulus', 16, null);
+INSERT INTO Terminology.Products (ProductCode, ProductName, GlossID, LastUpdate) VALUES ('M360', 'Mockup 360', 48, null);
+
+END;
+
+drop user phpmyadmin
+
+
+drop table Archive
+drop table TermContexts
+drop table TermComments
+drop table TermTranslations
+drop table PendingJobs
+drop table SourceTerms
+
+
+
+select nGram from nGrams where nGram = 'member’s' or nGram like '% member’s' or nGram like 'member’s %' or nGram like '% member’s %' limit 1
+
+select nGram from nGrams where nGram rlike '(^| )member’s( |$)' limit 1
+
+
+
+CREATE ALGORITHM = MERGE VIEW Terminology.TermExport AS
+SELECT PendingJobs.ID as JobID, TermTranslations.ID as TermID, SourceTerms.Term, TermTranslations.TermTranslation, TargetLanguages.LangCode3Ltr, Products.ProductCode, ContentTypes.ContentType, TermTranslations.NewTo, TermContexts.SourceContext
+FROM TermTranslations
+INNER JOIN SourceTerms ON SourceTerms.ID = TermTranslations.SourceTermID
+INNER JOIN TargetLanguages ON TargetLanguages.ID = TermTranslations.LanguageID
+INNER JOIN Products ON Products.ID = TermTranslations.ProductID
+INNER JOIN ContentTypes ON ContentTypes.ID = TermTranslations.ContentTypeID
+INNER JOIN PendingJobs ON PendingJobs.ID = TermTranslations.JobID
+, TermContexts
+WHERE TermContexts.TermTranslationID = TermTranslations.ID AND Products.ProductCode = '360NXS'
+ORDER BY Products.ProductCode ASC, TargetLanguages.LangName ASC, SourceTerms.Term ASC;
+
+select IgnoreTerm, TermID, Term, TermTranslation, ContentType, SourceContext from TermList, TermContexts where JobID = 131 and TermList.TermID = TermContexts.TermTranslationID and NewTo = 'Corpus'
+
+select Term, TermTranslation, NewTo from TermList where JobID = 131
+
+select TermID, Term, TermTranslation, LangCode3Ltr, ProductCode from TermList where Approved = b'1'
+
+select SourceContext, MTofContext, ContentType from TermContexts inner join ContentTypes on ContentTypeID = ContentTypes.ID where TermTranslationID = 25
+
+select * from TermList where TermID = 32
+update TermTranslations set IgnoreTerm=b'0', TermTranslation='direct translation test', TranslateUserID='UserID', Verified=b'0', Approved=b'0' where TermTranslations.ID=30
+
+
+create database Terminology_staging
+
+CREATE TRIGGER Terminology_staging.UpdateTermTranslation
+	BEFORE UPDATE ON Terminology_staging.TermTranslations
+FOR EACH ROW
+BEGIN
+	IF OLD.Verified != NEW.Verified THEN
+		IF NEW.Verified = b'1' THEN
+			SET NEW.VerifyUserID = NEW.TranslateUserID;
+		ELSE
+			SET NEW.VerifyUserID = NULL;
+		END IF;
+	END IF;
+	IF OLD.Approved != NEW.Approved THEN
+		IF NEW.Approved = b'1' THEN
+			SET NEW.ApproveUserID = NEW.TranslateUserID;
+		ELSE
+			SET NEW.ApproveUserID = NULL;
+		END IF;
+	END IF;
+	insert into debug(debugtext) values (old.termtranslation);
+	insert into debug(debugtext) values (new.termtranslation);
+	IF old.termtranslation is null or OLD.TermTranslation != NEW.TermTranslation THEN
+		if old.termtranslation is not null then
+		insert into debug(debugtext) values ('Old is not null and is diffrent from new');
+		INSERT INTO Terminology_staging.Archive(TermTranslationID, TermTranslation, DateTranslated, TranslateUserID) VALUES (OLD.ID, OLD.TermTranslation, OLD.DateTranslated, OLD.TranslateUserID);
+		end if;
+		IF NEW.TermTranslation != "" THEN
+			SET NEW.DateTranslated = CURRENT_TIMESTAMP;
+		ELSE
+			SET NEW.TermTranslation = NULL;
+		END IF;
+	ELSE
+		SET NEW.TranslateUserID = OLD.TranslateUserID;
+	END IF;
+END
+
+CREATE FUNCTION `Terminology_staging.selectContentTypeID`(sourceTypeID tinyint, targetTypeID tinyint) RETURNS tinyint(4)
+    READS SQL DATA
+    DETERMINISTIC
+BEGIN
+	IF (sourceTypeID = targetTypeID) THEN
+		RETURN sourceTypeID;
+	ELSE
+		RETURN (SELECT ID FROM ContentTypes WHERE ContentType = 'Both');
+	END IF;
+END
+
+show create table Terminology.Archive
+
+CREATE TABLE `Archive` (
+  `ID` mediumint(8) unsigned NOT NULL AUTO_INCREMENT,
+  `TermTranslationID` mediumint(8) unsigned NOT NULL,
+  `TermTranslation` text NOT NULL,
+  `DateTranslated` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `TranslateUserID` tinyblob,
+  PRIMARY KEY (`ID`),
+  KEY `TermTranslationID_key_archive` (`TermTranslationID`),
+  CONSTRAINT `TermTranslationID_key_archive` FOREIGN KEY (`TermTranslationID`) REFERENCES `TermTranslations` (`ID`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=24 DEFAULT CHARSET=utf8
+
+select * from Terminology.LanguageList
+
+delete from TermTranslations where ProductID = 29
+
+delete from PendingJobs where ProductID = 29
+
+delete from TermContexts where TermTranslationID > 12496 and TermTranslationID < 34574
+
+delete from Terminology.PendingJobs where ProductID = (select ID from Terminology.Products where ProductCode = 'M360')

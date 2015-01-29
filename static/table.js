@@ -325,8 +325,11 @@ function toggleTranslateTerm(evt) {
 	}
 }
 
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> 662dcf4501a39d70d77b2313d344657ba566772a
 function saveTranslation(evt) {
 	isAuthorised(function(authorised) {
 		if (authorised) {
