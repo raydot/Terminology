@@ -58,11 +58,8 @@
 #
 #####################
 
-<<<<<<< HEAD
+
 isStaging = True
-=======
-isStaging = False
->>>>>>> 662dcf4501a39d70d77b2313d344657ba566772a
 
 dbName = "Terminology"
 if (isStaging):
@@ -437,10 +434,9 @@ def buildQuickAccess(cursor):
 
 @app.route('/', methods=['GET'])
 @app.route('/index.html', methods=['GET', 'POST'])
-<<<<<<< HEAD
+
+
 #This is the login
-=======
->>>>>>> 662dcf4501a39d70d77b2313d344657ba566772a
 def index():
 	global mainKey
 	form = LoginForm()
@@ -668,7 +664,7 @@ def TermList():
 			userName = userFirstName + " " + userLastName,
 			STAGING = isStaging)
 		
-<<<<<<< HEAD
+
 #DK TEST PAGES
 @app.route('/dkPagingTestH.html', methods=['GET'])
 def dkPagingTestH():
@@ -686,15 +682,12 @@ def dkPagingTestH():
 # def dkPagingTestP():
 # 	return(render_template('dkPagingTest.php'))
 
-=======
->>>>>>> 662dcf4501a39d70d77b2313d344657ba566772a
 @app.route('/TermListLanguage.html', methods=['GET'])
 def TermListLanguage():
 	languageID = request.args.get('languageID', '')
 	userID = 0
 	userFirstName = ""
 	userLastName = ""
-<<<<<<< HEAD
 
 	#DK
 	pageNum = "";
@@ -723,9 +716,6 @@ def TermListLanguage():
 
 	## END DK
 
-=======
-	
->>>>>>> 662dcf4501a39d70d77b2313d344657ba566772a
 	if 'UserID' in session:
 		userID = session['UserID']
 		userFirstName = session['UserFirstName']
@@ -758,10 +748,7 @@ def TermListLanguage():
 			latestJobs = lateJobs,
 			quickAccess = quickAccess,
 			terms = terms,
-<<<<<<< HEAD
 			numTotPages = numTotPages,
-=======
->>>>>>> 662dcf4501a39d70d77b2313d344657ba566772a
 			userID = userID,
 			userName = userFirstName + " " + userLastName,
 			STAGING = isStaging)
@@ -775,10 +762,7 @@ def TermListLanguage():
 			recentProducts = recentProds,
 			latestJobs = lateJobs,
 			quickAccess = quickAccess,
-<<<<<<< HEAD
 			numTotPages = numTotPages,
-=======
->>>>>>> 662dcf4501a39d70d77b2313d344657ba566772a
 			userID = userID,
 			userName = userFirstName + " " + userLastName,
 			STAGING = isStaging)
@@ -1239,7 +1223,6 @@ def convertContent(content):
 	for datum in content:
 		result[datum['name']] = datum['value']
 	return result
-<<<<<<< HEAD
 
 @app.route('/pullOnePage/<pageNumber>/<pageViewCount>', methods=['POST'])
 def pullOnePage():
@@ -1252,8 +1235,6 @@ def pullOnePage():
 	cursor = conn.cursor(pymysql.cursors.DictCursor)
 	cursor.execute("select * from Termlist")
 	ptr = cursor.fetchall()
-=======
->>>>>>> 662dcf4501a39d70d77b2313d344657ba566772a
 	
 @app.route('/translateTerm', methods=['POST'])
 def translateTerm():
@@ -1287,14 +1268,12 @@ def translateTerm():
 	content['HasArchive'] = str(content['HasArchive'])
 	content['HasComments'] = str(content['HasComments'])
 	return json.dumps(content)
-<<<<<<< HEAD
 
 #not in use yet but to be used to build a more generalized pagecount function
 def getPageCount(pageQ):
 	logger.debug(pageQ)
 	return
-=======
->>>>>>> 662dcf4501a39d70d77b2313d344657ba566772a
+
 	
 def cleanup(*args):
 	global threads
